@@ -764,6 +764,23 @@ body { font-family: var(--font-sans); }
 .hc-brand .hc-logo-svg { height: 44px; width: auto; display: block; }
 .hc-footer-col .hc-logo-svg { height: 38px; width: auto; display: block; }
 
+/* Style tel inputs identically to the existing text/email inputs */
+.hc-form input[type="tel"] {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--fg-1, #0c1944);
+  background: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.hc-form input[type="tel"]:focus {
+  border-color: var(--sun-400, #fbc638);
+  box-shadow: 0 0 0 3px rgba(251,198,56,0.35);
+}
+
 /* ----------------- Free Tools dropdown ----------------- */
 .hc-nav-dropdown { position: relative; display: inline-flex; align-items: center; }
 .hc-nav-dropdown-trigger {

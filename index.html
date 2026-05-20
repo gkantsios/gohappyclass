@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Integrate Jackrabbit Class with WordPress, Wix, SquareSpace and more!</title>
-<meta name="description" content="Strategic Jackrabbit Class growth partner — WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
+<meta name="description" content="Strategic Jackrabbit Class growth partner - WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
 <meta name="theme-color" content="#235EE7">
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" rx="80" fill="%23235EE7"/><path d="M 110 175 Q 200 280 290 175" fill="none" stroke="%23ffffff" stroke-width="34" stroke-linecap="round"/><circle cx="200" cy="120" r="14" fill="%23fbc638"/></svg>'>
 <meta property="og:title" content="Integrate Jackrabbit Class with WordPress, Wix, SquareSpace and more!">
-<meta property="og:description" content="Strategic Jackrabbit Class growth partner — WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
+<meta property="og:description" content="Strategic Jackrabbit Class growth partner - WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
 <meta property="og:type" content="website">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -764,6 +764,23 @@ body { font-family: var(--font-sans); }
 .hc-brand .hc-logo-svg { height: 44px; width: auto; display: block; }
 .hc-footer-col .hc-logo-svg { height: 38px; width: auto; display: block; }
 
+/* Style tel inputs identically to the existing text/email inputs */
+.hc-form input[type="tel"] {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--fg-1, #0c1944);
+  background: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.hc-form input[type="tel"]:focus {
+  border-color: var(--sun-400, #fbc638);
+  box-shadow: 0 0 0 3px rgba(251,198,56,0.35);
+}
+
 /* ----------------- Free Tools dropdown ----------------- */
 .hc-nav-dropdown { position: relative; display: inline-flex; align-items: center; }
 .hc-nav-dropdown-trigger {
@@ -1068,25 +1085,26 @@ body { font-family: var(--font-sans); }
         </div>
         <div class="hc-form-row">
           <label><span>Studio / company</span><input type="text" name="company" autocomplete="organization" placeholder="Studio name (optional)"></label>
-          <label><span>What are you interested in?</span>
-            <select name="interest" required>
-              <option value="" disabled selected>Pick one…</option>
-              <option>WordPress plugin</option>
-              <option>iFrame embed (other platforms)</option>
-              <option>Custom website integration</option>
-              <option>Franchise website</option>
-              <option>Data warehouse / pulsereview</option>
-              <option>Custom Jackrabbit dashboard</option>
-              <option>Not sure yet</option>
-            </select>
-          </label>
+          <label><span>Phone</span><input type="tel" name="phone" required autocomplete="tel" placeholder="(555) 123-4567"></label>
         </div>
+        <label><span>What are you interested in?</span>
+          <select name="interest" required>
+            <option value="" disabled selected>Pick one…</option>
+            <option>WordPress plugin</option>
+            <option>iFrame embed (other platforms)</option>
+            <option>Custom website integration</option>
+            <option>Franchise website</option>
+            <option>Data warehouse / pulsereview</option>
+            <option>Custom Jackrabbit dashboard</option>
+            <option>Not sure yet</option>
+          </select>
+        </label>
         <label><span>How can we help?</span><textarea name="message" rows="4" required placeholder="A sentence or two is plenty."></textarea></label>
         <div class="hc-form-error" style="display: none;"></div>
         <div class="hc-cta-actions">
           <button type="submit" class="hc-btn hc-btn-primary hc-btn-lg">Send message<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
-        <p class="hc-cta-micro">No credit card. We reply within a day. *Requires an active Jackrabbit Class account for integration work.</p>
+        <p class="hc-cta-micro">We typically reply within 4–6 hours, if not sooner. Requires an active Jackrabbit Class account for integration work.</p>
       </form>
     </div>
   </div>
