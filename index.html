@@ -778,7 +778,8 @@ body { font-family: var(--font-sans); }
 .hc-nav-dropdown.open .hc-nav-dropdown-trigger svg { transform: rotate(180deg); }
 .hc-nav-dropdown-menu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: 100%;
+  margin-top: 10px;
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
   min-width: 240px;
@@ -792,6 +793,16 @@ body { font-family: var(--font-sans); }
   pointer-events: none;
   transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
   z-index: 60;
+}
+/* Invisible bridge across the visual gap so :hover doesn't break
+   while the cursor traverses from trigger -> menu */
+.hc-nav-dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
 }
 .hc-nav-dropdown:hover .hc-nav-dropdown-menu,
 .hc-nav-dropdown.open .hc-nav-dropdown-menu {
@@ -1151,14 +1162,29 @@ body { font-family: var(--font-sans); }
   document.querySelectorAll('.hc-nav-dropdown-trigger').forEach(function (t) {
     t.addEventListener('click', function (e) {
       e.preventDefault();
+      e.stopPropagation();
       var dd = t.closest('.hc-nav-dropdown');
-      if (dd) dd.classList.toggle('open');
+      if (!dd) return;
+      // Close any other open dropdowns first
+      document.querySelectorAll('.hc-nav-dropdown.open').forEach(function (other) {
+        if (other !== dd) other.classList.remove('open');
+      });
+      dd.classList.toggle('open');
     });
   });
+  // Close on click outside any dropdown
   document.addEventListener('click', function (e) {
     document.querySelectorAll('.hc-nav-dropdown.open').forEach(function (dd) {
       if (!dd.contains(e.target)) dd.classList.remove('open');
     });
+  });
+  // Close on Escape
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.hc-nav-dropdown.open').forEach(function (dd) {
+        dd.classList.remove('open');
+      });
+    }
   });
 })();
 
