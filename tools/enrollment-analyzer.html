@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Integrate Jackrabbit Class with WordPress, Wix, SquareSpace and more!</title>
-<meta name="description" content="Strategic Jackrabbit Class growth partner — WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
+<title>Free Enrollment Tenure Analyzer · happyclass</title>
+<meta name="description" content="Free tool — drop your Jackrabbit Class Enrollment Detail Report and instantly see per-student tenure: continuous days, longest streak, gaps, overlap factor. Runs entirely in your browser.">
 <meta name="theme-color" content="#235EE7">
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" rx="80" fill="%23235EE7"/><path d="M 110 175 Q 200 280 290 175" fill="none" stroke="%23ffffff" stroke-width="34" stroke-linecap="round"/><circle cx="200" cy="120" r="14" fill="%23fbc638"/></svg>'>
-<meta property="og:title" content="Integrate Jackrabbit Class with WordPress, Wix, SquareSpace and more!">
-<meta property="og:description" content="Strategic Jackrabbit Class growth partner — WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
+<meta property="og:title" content="Free Enrollment Tenure Analyzer · happyclass">
+<meta property="og:description" content="Free tool — drop your Jackrabbit Class Enrollment Detail Report and instantly see per-student tenure: continuous days, longest streak, gaps, overlap factor. Runs entirely in your browser.">
 <meta property="og:type" content="website">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -833,15 +833,452 @@ body { font-family: var(--font-sans); }
 }
 
 
-</style>
+/* ----- enrollment-analyzer page ----- */
+.tool-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+  position: relative;
+  z-index: 1;
+}
+.tool-shell::before {
+  content: '';
+  position: absolute; top: -120px; left: 50%;
+  transform: translateX(-50%);
+  width: 1200px; height: 600px;
+  background: radial-gradient(ellipse at center, rgba(35,94,231,0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
 
+.tool-hero {
+  text-align: center;
+  padding: 32px 0 48px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.tool-hero .eyebrow {
+  display: inline-block;
+  background: var(--happy-50, #eef3ff);
+  color: var(--brand, #235EE7);
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.tool-hero h1 {
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+  font-weight: 700;
+  font-size: clamp(34px, 4.5vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--fg-1, #0c1944);
+  margin-bottom: 20px;
+  text-wrap: balance;
+}
+.tool-hero h1 span { color: var(--brand, #235EE7); position: relative; }
+.tool-hero h1 span::after {
+  content: ''; position: absolute;
+  left: 0; right: 0; bottom: 4px;
+  height: 8px;
+  background: var(--happy-100, #dbe4ff);
+  z-index: -1; border-radius: 4px;
+}
+.tool-hero p {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--fg-2, #475569);
+  max-width: 620px;
+  margin: 0 auto;
+}
+.tool-hero p strong { color: var(--fg-1, #0c1944); font-weight: 600; }
+
+.upload-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 10px 30px -8px rgba(35,94,231,0.18), 0 4px 12px -4px rgba(15,23,42,0.08);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.upload {
+  border: 2px dashed var(--border, #e2e8f0);
+  background: var(--happy-50, #eef3ff);
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.upload:hover, .upload.drag {
+  border-color: var(--brand, #235EE7);
+  background: var(--happy-100, #dbe4ff);
+}
+.upload-icon {
+  width: 64px; height: 64px;
+  background: #fff; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 6px -1px rgba(15,23,42,0.06), 0 2px 4px -2px rgba(15,23,42,0.04);
+  color: var(--brand, #235EE7);
+  font-size: 28px; font-weight: 700;
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+}
+.upload-title {
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+  font-size: 20px; font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--fg-1, #0c1944);
+}
+.upload-sub { font-family: var(--font-sans); font-size: 14px; color: var(--fg-2, #475569); margin-bottom: 4px; }
+.upload-hint { font-family: var(--font-sans); font-size: 12px; color: var(--fg-3, #94a3b8); margin-top: 14px; }
+#fileInput { display: none; }
+
+.sample-link {
+  text-align: center;
+  margin-top: 18px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--fg-3, #94a3b8);
+}
+.sample-link a {
+  color: var(--brand, #235EE7);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sample-link a:hover { text-decoration: underline; }
+
+.controls {
+  display: none;
+  margin: 48px 0 24px;
+  padding: 20px 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.06);
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.controls.show { display: flex; }
+.control-group { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.control-group label { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--fg-2, #475569); }
+.control-group select {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 8px 32px 8px 12px;
+  background: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23475569' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  appearance: none;
+  color: var(--fg-1, #0c1944);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.control-group select:hover { border-color: var(--fg-3, #94a3b8); }
+.control-group select:focus {
+  outline: none;
+  border-color: var(--brand, #235EE7);
+  box-shadow: 0 0 0 3px var(--happy-100, #dbe4ff);
+}
+.spacer { flex: 1; }
+.tool-btn {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border: none;
+  background: var(--brand, #235EE7);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(35,94,231,0.2);
+}
+.tool-btn:hover {
+  background: var(--happy-700, #1a4cd0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(35,94,231,0.25);
+}
+.tool-btn-ghost {
+  background: #fff;
+  color: var(--fg-2, #475569);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: none;
+}
+.tool-btn-ghost:hover {
+  background: var(--bg-sunken, #f1f5f9);
+  color: var(--fg-1, #0c1944);
+  transform: none;
+  box-shadow: none;
+}
+
+.summary {
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.summary.show { display: grid; }
+.stat {
+  background: #fff;
+  padding: 22px 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  border: 1px solid var(--border, #e2e8f0);
+}
+.stat-label {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-3, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.stat-value {
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--fg-1, #0c1944);
+  letter-spacing: -0.02em;
+}
+.stat.accent .stat-value { color: var(--brand, #235EE7); }
+.stat-detail { font-family: var(--font-sans); font-size: 13px; color: var(--fg-2, #475569); margin-top: 8px; }
+
+.callout {
+  display: none;
+  background: linear-gradient(135deg, var(--brand, #235EE7) 0%, var(--happy-700, #173eac) 100%);
+  color: #fff;
+  padding: 24px 28px;
+  margin-bottom: 32px;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.callout.show { display: block; }
+.callout::before {
+  content: ''; position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+.callout::after {
+  content: ''; position: absolute;
+  bottom: -60px; right: 80px;
+  width: 120px; height: 120px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+.callout-label {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 8px;
+  position: relative;
+}
+.callout-text {
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.4;
+  position: relative;
+}
+.callout-text strong { font-weight: 700; }
+
+.table-wrap {
+  display: none;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  border: 1px solid var(--border, #e2e8f0);
+  overflow: hidden;
+}
+.table-wrap.show { display: block; }
+.table-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.table-title {
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg-1, #0c1944);
+}
+.search-box {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 8px 14px 8px 36px;
+  width: 260px;
+  background: var(--bg-sunken, #f8fafc);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='5' stroke='%2394a3b8' stroke-width='1.5' fill='none'/%3E%3Cpath d='M11 11l3 3' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
+}
+.search-box:focus {
+  outline: none;
+  border-color: var(--brand, #235EE7);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px var(--happy-100, #dbe4ff);
+}
+.table-scroll { overflow-x: auto; max-height: 560px; overflow-y: auto; }
+.tool-shell table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tool-shell thead { position: sticky; top: 0; background: var(--bg-sunken, #f8fafc); z-index: 2; }
+.tool-shell th {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg-2, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.tool-shell th:hover { color: var(--brand, #235EE7); }
+.tool-shell th.sorted { color: var(--brand, #235EE7); }
+.tool-shell th.sorted::after { content: ' ↓'; }
+.tool-shell th.sorted.asc::after { content: ' ↑'; }
+.tool-shell td {
+  font-family: var(--font-sans);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--bg-sunken, #f1f5f9);
+  white-space: nowrap;
+  color: var(--fg-1, #0c1944);
+}
+.tool-shell tbody tr { transition: background 0.1s; cursor: pointer; }
+.tool-shell tbody tr:hover { background: var(--happy-50, #eef3ff); }
+.tool-shell tbody tr.expanded { background: var(--happy-50, #eef3ff); }
+
+.num { font-family: var(--font-mono, "JetBrains Mono", monospace); text-align: right; font-size: 13px; }
+.student-name { font-weight: 700; color: var(--fg-1, #0c1944); }
+.student-name::before {
+  content: '▸';
+  color: var(--fg-3, #94a3b8);
+  margin-right: 10px;
+  display: inline-block;
+  transition: transform 0.15s ease;
+  font-size: 10px;
+}
+.tool-shell tr.expanded .student-name::before { transform: rotate(90deg); color: var(--brand, #235EE7); }
+.continuous-cell { font-weight: 700; color: var(--brand, #235EE7); }
+.continuous-cell .mo { color: var(--fg-3, #94a3b8); font-weight: 400; margin-left: 4px; }
+
+.detail-row { display: none; background: var(--bg-sunken, #f8fafc) !important; }
+.detail-row.show { display: table-row; }
+.detail-row td { padding: 0; cursor: default; }
+.detail-row:hover { background: var(--bg-sunken, #f8fafc) !important; }
+.detail-inner { padding: 18px 24px 22px 56px; }
+.detail-title {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-3, #94a3b8);
+  margin-bottom: 12px;
+}
+.detail-table { width: 100%; font-size: 13px; }
+.detail-table th {
+  background: transparent;
+  padding: 8px 10px;
+  cursor: default;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+.detail-table th:hover { color: var(--fg-2, #475569); }
+.detail-table td { padding: 8px 10px; border-bottom: 1px solid var(--bg-sunken, #f1f5f9); }
+.detail-table tr { cursor: default; }
+.detail-table tr:hover { background: transparent; }
+
+.pill {
+  display: inline-block;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.pill-enrolled { background: var(--mint-50, #ecfdf5); color: var(--mint-700, #047857); }
+.pill-dropin   { background: var(--sun-100, #ffefb0);  color: var(--sun-700, #7e5800); }
+.pill-transfer { background: var(--happy-100, #dbe4ff); color: var(--happy-700, #173eac); }
+.pill-default  { background: var(--bg-sunken, #f1f5f9); color: var(--fg-2, #475569); }
+.dropped { color: var(--fg-3, #94a3b8); text-decoration: line-through; }
+
+.notes {
+  display: none;
+  margin-top: 48px;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e2e8f0);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--fg-2, #475569);
+  line-height: 1.7;
+}
+.notes.show { display: block; }
+.notes h4 {
+  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg-1, #0c1944);
+  margin-bottom: 14px;
+}
+.notes p { margin-bottom: 10px; }
+.notes p:last-child { margin-bottom: 0; }
+.notes strong { color: var(--fg-1, #0c1944); font-weight: 700; }
+.notes code {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 12px;
+  background: var(--bg-sunken, #f1f5f9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--happy-700, #173eac);
+}
+
+@media (max-width: 900px) {
+  .tool-shell { padding: 20px 16px 60px; }
+  .tool-hero { padding: 16px 0 32px; }
+  .upload { padding: 32px 20px; }
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .table-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .search-box { width: 100%; }
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
 <div class="hc-nav-wrap">
   <div class="container">
     <nav class="hc-nav" aria-label="primary">
-      <a class="hc-brand" href="#top" aria-label="happyclass home">
+      <a class="hc-brand" href="../index.html" aria-label="happyclass home">
         <svg class="hc-logo-svg" aria-label="happyclass" role="img" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 340" preserveAspectRatio="xMidYMid meet">
   <!-- Circular icon -->
   <circle cx="100" cy="165" r="55" fill="#2C5BFF"/>
@@ -857,229 +1294,137 @@ body { font-family: var(--font-sans); }
 </svg>
       </a>
       <div class="hc-nav-links">
-        <a href="#services">Services</a>
-        <a href="#integration">Integrations</a>
+        <a href="../index.html#services">Services</a>
+        <a href="../index.html#integration">Integrations</a>
         <div class="hc-nav-dropdown">
           <a href="#" class="hc-nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Free Tools <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
           <div class="hc-nav-dropdown-menu" role="menu">
-            <a href="tools/enrollment-analyzer.html" role="menuitem">
+            <a href="../tools/enrollment-analyzer.html" role="menuitem" class="current">
               Enrollment Analyzer
               <span class="desc">Roll up Jackrabbit enrollments into per-student tenure</span>
             </a>
           </div>
         </div>
-        <a href="#testimonials">Studios</a>
-        <a href="#contact">Contact</a>
+        <a href="../index.html#testimonials">Studios</a>
+        <a href="../index.html#contact">Contact</a>
       </div>
       <div class="hc-nav-cta">
         <a href="https://pulsereview.io" target="_blank" rel="noopener noreferrer" class="hc-btn hc-btn-ghost">pulsereview.io →</a>
-        <a href="#contact" class="hc-btn hc-btn-primary">Talk to us</a>
+        <a href="../index.html#contact" class="hc-btn hc-btn-primary">Talk to us</a>
       </div>
     </nav>
   </div>
 </div>
 
 
-<main>
+<main class="tool-shell">
 
-<section class="hc-hero" id="top">
-  <div class="container">
-    <div class="hc-hero-grid">
-      <div>
-        <span class="eyebrow"><span class="dot"></span>STRATEGIC GROWTH PARTNER · JACKRABBIT CLASS</span>
-        <h1>Your Strategic Jackrabbit Class<br><span class="accent">Growth Partner.</span></h1>
-        <p class="lede">
-          We help you leverage Jackrabbit Class to grow your business — from website tools to custom data warehouse applications, we're a jack of all trades. <strong>One of the things we offer is the integration piece.</strong>
-        </p>
-        <div class="hc-hero-ctas">
-          <a class="hc-btn hc-btn-primary hc-btn-lg" href="#contact">Talk to us<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-          <a class="hc-btn hc-btn-secondary hc-btn-lg" href="#services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>See what we offer</a>
-        </div>
-        <div class="hc-hero-micro">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Integrations on any platform</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom data warehouse</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Franchise-ready websites</span>
-        </div>
-        <p class="hc-hero-foot">* Requires an active Jackrabbit Class account.</p>
-      </div>
-      <div class="hc-hero-visual">
-        
-<div class="hc-hero-card dash">
-  <div class="hc-dash-head">
-    <span class="hc-dash-title">YOUR SCHEDULE · LIVE</span>
-    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 999px; background: var(--mint-50); color: var(--mint-700); border: 1px solid var(--mint-200); font-family: var(--font-mono); font-size: 10px; font-weight: 600;">
-      <span style="width: 5px; height: 5px; border-radius: 999px; background: var(--mint-500);"></span>SYNCED
-    </span>
+<section class="tool-hero">
+  <div class="eyebrow">FREE TOOL · NO LOGIN REQUIRED</div>
+  <h1>How long has each student <span>really</span> been enrolled?</h1>
+  <p>Drop your Jackrabbit Enrollment Detail Report below and we'll do the math for you — merging overlapping enrollments to give you clean per-student tenure numbers. <strong>Continuous days, longest streak, gaps — all of it.</strong></p>
+</section>
+
+<div class="upload-card">
+  <div id="uploadZone" class="upload">
+    <div class="upload-icon">↓</div>
+    <div class="upload-title">Drop your Enrollment Detail Report</div>
+    <div class="upload-sub">Click to browse, or drag &amp; drop the file here</div>
+    <div class="upload-hint">Accepts .xls · .xlsx · .csv — processed in your browser, never uploaded</div>
+    <input type="file" id="fileInput" accept=".xls,.xlsx,.csv">
   </div>
-  <div class="hc-mini-grid"><div class="hc-mini-day">S</div><div class="hc-mini-day">M</div><div class="hc-mini-day">T</div><div class="hc-mini-day">W</div><div class="hc-mini-day">T</div><div class="hc-mini-day">F</div><div class="hc-mini-day">S</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">8:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot a">10:30</div><div class="hc-mini-slot ">10:30</div><div class="hc-mini-slot ">10:00</div><div class="hc-mini-slot b">9:30</div><div class="hc-mini-slot ">10:00</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ab">1:30</div><div class="hc-mini-slot ">11:30</div><div class="hc-mini-slot b">11:00</div><div class="hc-mini-slot ">11:00</div><div class="hc-mini-slot s">3:30</div><div class="hc-mini-slot ">11:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ">3:00</div><div class="hc-mini-slot ">3:30</div><div class="hc-mini-slot a">3:30</div><div class="hc-mini-slot ">3:30</div><div class="hc-mini-slot ">5:30</div><div class="hc-mini-slot ">3:00</div>
+</div>
+<div class="sample-link">
+  Want to see how it works first? <a id="sampleLink">Load a sample file →</a>
+</div>
+
+<div id="controls" class="controls">
+  <div class="control-group">
+    <label>Drop Reasons</label>
+    <select id="dropReasonFilter">
+      <option value="all">Include all</option>
+      <option value="exclude-admin">Exclude "Admin Error"</option>
+      <option value="exclude-dropins">Exclude drop-ins</option>
+      <option value="completed-only">Real enrollments only</option>
+    </select>
   </div>
-  <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; font-family: var(--font-sans); font-size: 11px; color: var(--fg-3);">
-    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--happy-300);"></span>Lina · age 6</span>
-    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--coral-300);"></span>Rio · age 3</span>
+  <div class="control-group">
+    <label>Sort By</label>
+    <select id="sortSelect">
+      <option value="continuous">Continuous tenure</option>
+      <option value="enrollments">Enrollment count</option>
+      <option value="first">First enroll date</option>
+      <option value="last">Most recent</option>
+      <option value="name">Name (A→Z)</option>
+    </select>
+  </div>
+  <div class="spacer"></div>
+  <button id="downloadBtn" class="tool-btn">Download as Excel ↓</button>
+  <button id="resetBtn" class="tool-btn tool-btn-ghost">New File</button>
+</div>
+
+<div id="callout" class="callout">
+  <div class="callout-label">★ Insight</div>
+  <div class="callout-text" id="calloutText"></div>
+</div>
+
+<div id="summary" class="summary">
+  <div class="stat">
+    <div class="stat-label">Students</div>
+    <div class="stat-value" id="statStudents">—</div>
+    <div class="stat-detail" id="statStudentsDetail"></div>
+  </div>
+  <div class="stat accent">
+    <div class="stat-label">Median Tenure</div>
+    <div class="stat-value" id="statMedian">—</div>
+    <div class="stat-detail">continuous, in months</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Active Now</div>
+    <div class="stat-value" id="statActive">—</div>
+    <div class="stat-detail" id="statActiveDetail"></div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Overlap Factor</div>
+    <div class="stat-value" id="statInflation">—</div>
+    <div class="stat-detail">class-days vs. tenure-days</div>
   </div>
 </div>
 
-<div class="hc-hero-card qa">
-  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-    <span style="font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">FIND YOUR CLASS</span>
-    <span style="font-family: var(--font-mono); font-size: 10px; color: var(--fg-4);">3 / 3</span>
+<div id="tableWrap" class="table-wrap">
+  <div class="table-header">
+    <div class="table-title">Per-Student Tenure</div>
+    <input type="text" class="search-box" id="searchBox" placeholder="Search students…">
   </div>
-  <div class="hc-qa-row"><span>Location</span><strong>Huntersville &nbsp;✓</strong></div>
-  <div class="hc-qa-row"><span>Age</span><strong>19–36 mo &nbsp;✓</strong></div>
-  <div class="hc-qa-row" style="background: var(--happy-500);"><span>Day</span><strong>Saturday &nbsp;✓</strong></div>
-  <div class="hc-qa-cta"><button type="button">See 4 matching classes →</button></div>
+  <div class="table-scroll">
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th data-sort="name">Student</th>
+          <th data-sort="enrollments" class="num">Enrollments</th>
+          <th data-sort="first">First Enroll</th>
+          <th data-sort="last">Last End</th>
+          <th data-sort="continuous" class="num sorted">Continuous</th>
+          <th data-sort="total" class="num">Total Active</th>
+          <th data-sort="streak" class="num">Longest Streak</th>
+          <th data-sort="gaps" class="num">Gaps</th>
+          <th data-sort="longestGap" class="num">Longest Gap</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </div>
 </div>
 
-<div class="hc-hero-card toast">
-  <div class="hc-toast-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-  <div class="hc-toast-text">
-    <strong>New enrollment</strong>
-    <span>Maria booked Tumbling L3 · just now</span>
-  </div>
+<div id="notes" class="notes">
+  <h4>How these numbers are calculated</h4>
+  <p>The Enrollment Detail Report from Jackrabbit gives you a complete record of every class enrollment — exactly what you need when you want the details. This tool reads that same data and rolls it up to one row per student, so you can answer per-student questions like "how long have they been with us?" at a glance.</p>
+  <p><strong>Canonical window:</strong> each enrollment runs from <code>Enroll Date</code> to <code>Drop Date</code> (or today, if still active). The class's own start/end dates are ignored — those describe when the class meets, not when the student is enrolled.</p>
+  <p><strong>Continuous Days</strong> merges overlapping enrollment windows per student into a single timeline, then counts distinct days. This is the number that answers "how long has this student been with us?"</p>
+  <p><strong>Total Active Days</strong> sums every enrollment window without merging — the same number you'd get from summing durations directly. The gap between this and Continuous Days shows how much overlap a student has across their classes.</p>
+  <p><strong>Longest Streak</strong> is the longest single uninterrupted enrolled period. <strong>Gaps</strong> are the days between merged periods — useful for spotting students who lapsed and came back.</p>
+  <p><strong>Join key:</strong> students are grouped by <code>Jackrabbit Student ID</code>, not name. (Name collisions would silently corrupt the math.)</p>
 </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="hc-section" id="services">
-  <div class="container">
-    <div class="hc-section-head">
-      <span class="eyebrow"><span class="dot"></span>WHAT WE OFFER</span>
-      <h2>Tools and partnerships <span class="accent">that grow studios.</span></h2>
-      <p>From a plug-and-play WordPress integration to fully custom data warehouse applications, we meet you wherever you are — and grow with you.</p>
-    </div>
-    <div class="hc-services-grid">
-      
-      <article class="hc-service-card">
-        <span class="hc-feature-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">WORDPRESS PLUGIN</span>
-        <h3>WordPress integration plugin</h3>
-        <p>Drop-in calendar, Q&amp;A funnel, and class browser for any WordPress site. Connects to your Jackrabbit Class account in minutes.</p>
-        <a class="hc-service-link" href="#contact">Get the plugin<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><polyline points="7 9 9 11 7 13"/><line x1="11" y1="13" x2="17" y2="13"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">UNIVERSAL EMBED</span>
-        <h3>iFrame embed for any website</h3>
-        <p>The same integration, without the plugin. Paste a single iframe snippet onto Wix, Squarespace, GoDaddy, Webflow, or anywhere HTML lives.</p>
-        <a class="hc-service-link" href="#contact">See it work<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">CUSTOM INTEGRATIONS</span>
-        <h3>Custom website integrations</h3>
-        <p>Have something unusual in mind? We'll build a bespoke integration tailored to your site, your enrollment flow, and your brand.</p>
-        <a class="hc-service-link" href="#contact">Tell us your idea<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">FRANCHISES</span>
-        <h3>Franchise-ready website development</h3>
-        <p>Multi-location? Multi-brand? We build franchise websites with shared design systems and per-location Jackrabbit data baked in.</p>
-        <a class="hc-service-link" href="#contact">Plan your build<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">DATA WAREHOUSE</span>
-        <h3>Custom data warehouse tools</h3>
-        <p>Like pulsereview.io — purpose-built analytics on top of your Jackrabbit data, so you can finally see what's working and what isn't.</p>
-        <a class="hc-service-link" href="https://pulsereview.io" target="_blank" rel="noopener noreferrer">Visit pulsereview.io<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">DASHBOARDS</span>
-        <h3>Custom Jackrabbit Class dashboards</h3>
-        <p>Live KPI dashboards built around the metrics that matter to your studio — enrollment, retention, revenue, capacity utilization.</p>
-        <a class="hc-service-link" href="#contact">Design my dashboard<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="hc-compat" id="integration">
-  <div class="container">
-    <div class="hc-compat-inner">
-      <div class="hc-compat-head">
-        <span class="label">WORKS ANYWHERE</span>
-        <span class="title">If it hosts HTML, it hosts happyclass.</span>
-      </div>
-      <div class="hc-platforms">
-        <div class="hc-platform"><span class="dot" style="background: #21759b;"></span>WordPress</div>
-        <div class="hc-platform"><span class="dot" style="background: #0c6efd;"></span>Wix</div>
-        <div class="hc-platform"><span class="dot" style="background: #000;"></span>Squarespace</div>
-        <div class="hc-platform"><span class="dot" style="background: #5BE595;"></span>GoDaddy</div>
-        <div class="hc-platform"><span class="dot" style="background: var(--fg-3);"></span>Webflow</div>
-        <div class="hc-platform"><span class="dot" style="background: var(--fg-3);"></span>Custom</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="hc-section" id="testimonials">
-  <div class="container">
-    <div class="hc-section-head">
-      <span class="eyebrow">STUDIOS WE PARTNER WITH</span>
-      <h2>Real studios. Real growth. <span class="accent">Real partnerships.</span></h2>
-      <p>Gymnastics, swim, dance, cheer, music. Different programs — same goal: a smarter Jackrabbit operation and a website that actually helps you grow.</p>
-    </div>
-    <div class="hc-testimonials">
-      <article class="hc-testimonial">
-        <div class="stars" aria-label="5 of 5 stars">★★★★★</div>
-        <blockquote>"happyclass worked exactly how I envisioned it. We needed one specific feature — adding multiple students to the calendar — and they found a quick, clean solution. Highly recommend for any swim school on Jackrabbit + WordPress."</blockquote>
-        <div class="who"><div class="avatar">JK</div><div class="name"><strong>John Kirk</strong><span>Little Otter Swim</span></div></div>
-      </article>
-      <article class="hc-testimonial">
-        <div class="stars" aria-label="5 of 5 stars">★★★★★</div>
-        <blockquote>"happyclass is always there to support me and my business. The seamless integration with Jackrabbit lets parents find what they need — and, more importantly, actually schedule a class."</blockquote>
-        <div class="who"><div class="avatar">K</div><div class="name"><strong>Kathryn</strong><span>The Swim Lesson People</span></div></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="hc-section" id="contact">
-  <div class="container">
-    <div class="hc-cta">
-      <span class="eyebrow" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.25);"><span class="dot" style="background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25);"></span>LET'S TALK</span>
-      <h2>Ready to grow with happyclass?</h2>
-      <p>Tell us a little about your studio and what you're trying to solve. We'll get back to you within a day with a plan — no sales script.</p>
-
-      <form class="hc-form" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
-        <input type="hidden" name="access_key" value="0dfa3019-5d47-4045-ba1e-5e61d6ef4bbf">
-        <input type="hidden" name="subject" value="New inquiry from gohappyclass.com">
-        <input type="hidden" name="from_name" value="happyclass marketing site">
-        <input type="checkbox" name="botcheck" style="display: none;" tabindex="-1" autocomplete="off">
-        <div class="hc-form-row">
-          <label><span>Name</span><input type="text" name="name" required autocomplete="name" placeholder="Your name"></label>
-          <label><span>Email</span><input type="email" name="email" required autocomplete="email" placeholder="you@studio.com"></label>
-        </div>
-        <div class="hc-form-row">
-          <label><span>Studio / company</span><input type="text" name="company" autocomplete="organization" placeholder="Studio name (optional)"></label>
-          <label><span>What are you interested in?</span>
-            <select name="interest" required>
-              <option value="" disabled selected>Pick one…</option>
-              <option>WordPress plugin</option>
-              <option>iFrame embed (other platforms)</option>
-              <option>Custom website integration</option>
-              <option>Franchise website</option>
-              <option>Data warehouse / pulsereview</option>
-              <option>Custom Jackrabbit dashboard</option>
-              <option>Not sure yet</option>
-            </select>
-          </label>
-        </div>
-        <label><span>How can we help?</span><textarea name="message" rows="4" required placeholder="A sentence or two is plenty."></textarea></label>
-        <div class="hc-form-error" style="display: none;"></div>
-        <div class="hc-cta-actions">
-          <button type="submit" class="hc-btn hc-btn-primary hc-btn-lg">Send message<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-        </div>
-        <p class="hc-cta-micro">No credit card. We reply within a day. *Requires an active Jackrabbit Class account for integration work.</p>
-      </form>
-    </div>
-  </div>
-</section>
 
 </main>
 
@@ -1106,25 +1451,25 @@ body { font-family: var(--font-sans); }
       <div class="hc-footer-col">
         <h4>Services</h4>
         <ul>
-          <li><a href="#services">WordPress plugin</a></li>
-          <li><a href="#services">iFrame embed</a></li>
-          <li><a href="#services">Custom integrations</a></li>
-          <li><a href="#services">Franchise sites</a></li>
-          <li><a href="#services">Custom dashboards</a></li>
+          <li><a href="../index.html#services">WordPress plugin</a></li>
+          <li><a href="../index.html#services">iFrame embed</a></li>
+          <li><a href="../index.html#services">Custom integrations</a></li>
+          <li><a href="../index.html#services">Franchise sites</a></li>
+          <li><a href="../index.html#services">Custom dashboards</a></li>
         </ul>
       </div>
       <div class="hc-footer-col">
         <h4>Free Tools</h4>
         <ul>
-          <li><a href="tools/enrollment-analyzer.html">Enrollment Analyzer</a></li>
+          <li><a href="../tools/enrollment-analyzer.html">Enrollment Analyzer</a></li>
         </ul>
       </div>
       <div class="hc-footer-col">
         <h4>Products</h4>
         <ul>
           <li><a href="https://pulsereview.io" target="_blank" rel="noopener noreferrer">pulsereview.io</a></li>
-          <li><a href="#testimonials">Studios using us</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="../index.html#testimonials">Studios using us</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -1162,37 +1507,376 @@ body { font-family: var(--font-sans); }
   });
 })();
 
-(function () {
-  var form = document.getElementById('contactForm');
-  if (!form) return;
-  var btn = form.querySelector('button[type="submit"]');
-  var btnLabel = btn ? btn.innerHTML : '';
-  var errEl = form.querySelector('.hc-form-error');
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
-    if (btn) { btn.disabled = true; btn.innerHTML = 'Sending…'; }
-    var data = new FormData(form);
-    fetch('https://api.web3forms.com/submit', { method: 'POST', body: data })
-      .then(function (r) { return r.json(); })
-      .then(function (json) {
-        if (json && json.success) {
-          var success = document.createElement('div');
-          success.className = 'hc-form-success';
-          success.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><div><strong>Thanks — we got it.</strong><span>We\'ll be in touch shortly.</span></div>';
-          form.parentNode.replaceChild(success, form);
-        } else {
-          if (errEl) { errEl.style.display = ''; errEl.textContent = (json && json.message) || 'Something went wrong. Please try again.'; }
-          if (btn) { btn.disabled = false; btn.innerHTML = btnLabel; }
-        }
-      })
-      .catch(function () {
-        if (errEl) { errEl.style.display = ''; errEl.textContent = 'Network error. Please try again.'; }
-        if (btn) { btn.disabled = false; btn.innerHTML = btnLabel; }
-      });
+let rawRows = [];
+let students = [];
+let sortKey = 'continuous';
+let sortAsc = false;
+let searchTerm = '';
+
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadZone.classList.add('drag');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+});
+
+document.getElementById('sampleLink').addEventListener('click', loadSample);
+document.getElementById('resetBtn').addEventListener('click', reset);
+document.getElementById('downloadBtn').addEventListener('click', downloadExcel);
+
+document.getElementById('dropReasonFilter').addEventListener('change', recompute);
+document.getElementById('sortSelect').addEventListener('change', e => {
+  sortKey = e.target.value === 'continuous' ? 'continuous'
+          : e.target.value === 'enrollments' ? 'enrollments'
+          : e.target.value === 'first' ? 'first'
+          : e.target.value === 'last' ? 'last'
+          : 'name';
+  sortAsc = (sortKey === 'name' || sortKey === 'first');
+  renderTable();
+  updateHeaderSort();
+});
+document.getElementById('searchBox').addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase();
+  renderTable();
+});
+
+document.querySelectorAll('th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.dataset.sort;
+    if (sortKey === k) sortAsc = !sortAsc;
+    else { sortKey = k; sortAsc = (k === 'name' || k === 'first'); }
+    renderTable();
+    updateHeaderSort();
   });
-})();
+});
+
+function updateHeaderSort() {
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.sort === sortKey);
+    th.classList.toggle('asc', th.dataset.sort === sortKey && sortAsc);
+  });
+}
+
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellDates: true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: null, raw: false, dateNF: 'yyyy-mm-dd' });
+      ingest(rows);
+    } catch (err) {
+      alert("Couldn't read that file. Make sure it's an Enrollment Detail Report export.\n\n" + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function normCols(row) {
+  const out = {};
+  for (const k in row) out[k.replace(/\s+/g, ' ').trim()] = row[k];
+  return out;
+}
+
+function parseDate(v) {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  const d = new Date(v);
+  return isNaN(d) ? null : d;
+}
+
+function ingest(rows) {
+  rawRows = rows.map(normCols);
+  const required = ['Enroll Date', 'Student First Name', 'Student Last Name'];
+  const sample = rawRows[0] || {};
+  const missing = required.filter(c => !(c in sample));
+  if (missing.length) {
+    alert("This doesn't look like an Enrollment Detail Report. Missing columns: " + missing.join(', '));
+    return;
+  }
+  recompute();
+}
+
+function recompute() {
+  if (!rawRows.length) return;
+  const filter = document.getElementById('dropReasonFilter').value;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let rows = rawRows.filter(r => {
+    const reason  = (r['Drop Reason'] || '').toLowerCase();
+    const eType   = (r['Enroll Type'] || '').toLowerCase();
+    if (filter === 'exclude-admin' && reason.includes('admin error')) return false;
+    if (filter === 'exclude-dropins' && eType.includes('drop-in')) return false;
+    if (filter === 'completed-only' && (eType.includes('drop-in') || reason.includes('admin error'))) return false;
+    return true;
+  });
+
+  const groups = new Map();
+  for (const r of rows) {
+    const key = r['Jackrabbit Student ID'] ?? (r['Student First Name'] + '|' + r['Student Last Name']);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
+  }
+
+  students = [];
+  for (const [key, grp] of groups) {
+    const pairs = grp
+      .map(r => {
+        const s = parseDate(r['Enroll Date']);
+        const e = parseDate(r['Drop Date']) || today;
+        return s && s <= e ? [s.getTime(), e.getTime(), r] : null;
+      })
+      .filter(Boolean);
+    if (!pairs.length) continue;
+
+    const intervals = pairs.map(p => [p[0], p[1]]).sort((a,b) => a[0]-b[0]);
+    const merged = [intervals[0].slice()];
+    for (let i = 1; i < intervals.length; i++) {
+      const [s,e] = intervals[i];
+      if (s <= merged[merged.length-1][1] + 86400000) {
+        merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], e);
+      } else {
+        merged.push([s,e]);
+      }
+    }
+
+    const days = ms => Math.round(ms / 86400000) + 1;
+    const continuous = merged.reduce((a,[s,e]) => a + days(e-s), 0);
+    const total = intervals.reduce((a,[s,e]) => a + days(e-s), 0);
+    const longestStreak = Math.max(...merged.map(([s,e]) => days(e-s)));
+    const gaps = [];
+    for (let i = 1; i < merged.length; i++) {
+      gaps.push(Math.round((merged[i][0] - merged[i-1][1]) / 86400000) - 1);
+    }
+
+    const firstEnroll = new Date(Math.min(...intervals.map(i => i[0])));
+    const lastEnd = new Date(Math.max(...intervals.map(i => i[1])));
+    const activeNow = grp.some(r => !r['Drop Date']);
+
+    students.push({
+      key,
+      name: (grp[0]['Student First Name'] || '') + ' ' + (grp[0]['Student Last Name'] || ''),
+      enrollments: grp.length,
+      first: firstEnroll,
+      last: lastEnd,
+      continuous,
+      total,
+      streak: longestStreak,
+      gapCount: gaps.length,
+      longestGap: gaps.length ? Math.max(...gaps) : 0,
+      activeNow,
+      rows: grp.map(r => ({...r, _start: parseDate(r['Enroll Date']), _end: parseDate(r['Drop Date']) || today}))
+    });
+  }
+
+  renderAll();
+}
+
+function renderAll() {
+  document.getElementById('controls').classList.add('show');
+  document.getElementById('summary').classList.add('show');
+  document.getElementById('tableWrap').classList.add('show');
+  document.getElementById('notes').classList.add('show');
+  document.getElementById('callout').classList.add('show');
+
+  const n = students.length;
+  const tenures = students.map(s => s.continuous).sort((a,b)=>a-b);
+  const median = tenures[Math.floor(n/2)];
+  const activeCount = students.filter(s => s.activeNow).length;
+  const totalSum = students.reduce((a,s)=>a+s.total, 0);
+  const continuousSum = students.reduce((a,s)=>a+s.continuous, 0);
+  const inflation = continuousSum ? (totalSum / continuousSum) : 1;
+
+  document.getElementById('statStudents').textContent = n;
+  document.getElementById('statStudentsDetail').textContent = `${rawRows.length} enrollment rows`;
+  document.getElementById('statMedian').textContent = (median / 30.44).toFixed(1);
+  document.getElementById('statActive').textContent = activeCount;
+  document.getElementById('statActiveDetail').textContent = `${Math.round(activeCount/n*100)}% of total`;
+  document.getElementById('statInflation').textContent = inflation.toFixed(1) + '×';
+
+  const worst = [...students].sort((a,b) => (b.total/b.continuous) - (a.total/a.continuous))[0];
+  if (worst && worst.total / worst.continuous > 1.5) {
+    const ratio = (worst.total / worst.continuous).toFixed(1);
+    document.getElementById('calloutText').innerHTML =
+      `<strong>${worst.name}</strong> is enrolled across ${worst.enrollments} overlapping classes — totaling ${worst.total} class-days, but only <strong>${worst.continuous} continuous days</strong> of actual time enrolled. We've already merged the overlaps for you.`;
+  } else {
+    document.getElementById('calloutText').innerHTML =
+      `Each student appears on an average of <strong>${(rawRows.length/n).toFixed(1)} enrollment rows</strong>. We've merged overlapping classes into one timeline per student so you can see true tenure at a glance.`;
+  }
+
+  renderTable();
+  updateHeaderSort();
+}
+
+function pillClass(type) {
+  const t = (type || '').toLowerCase();
+  if (t.includes('drop-in')) return 'pill-dropin';
+  if (t.includes('transfer')) return 'pill-transfer';
+  if (t.includes('enroll')) return 'pill-enrolled';
+  return 'pill-default';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('resultsBody');
+  let list = students.filter(s => !searchTerm || s.name.toLowerCase().includes(searchTerm));
+
+  const cmp = (a,b) => {
+    let av, bv;
+    switch (sortKey) {
+      case 'name': av = a.name; bv = b.name; break;
+      case 'enrollments': av = a.enrollments; bv = b.enrollments; break;
+      case 'first': av = a.first.getTime(); bv = b.first.getTime(); break;
+      case 'last': av = a.last.getTime(); bv = b.last.getTime(); break;
+      case 'total': av = a.total; bv = b.total; break;
+      case 'streak': av = a.streak; bv = b.streak; break;
+      case 'gaps': av = a.gapCount; bv = b.gapCount; break;
+      case 'longestGap': av = a.longestGap; bv = b.longestGap; break;
+      default: av = a.continuous; bv = b.continuous;
+    }
+    if (av < bv) return sortAsc ? -1 : 1;
+    if (av > bv) return sortAsc ? 1 : -1;
+    return 0;
+  };
+  list.sort(cmp);
+
+  tbody.innerHTML = '';
+  for (const s of list) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="student-name">${s.name}</td>
+      <td class="num">${s.enrollments}</td>
+      <td>${fmtDate(s.first)}</td>
+      <td>${fmtDate(s.last)}</td>
+      <td class="num continuous-cell">${s.continuous}d<span class="mo">· ${(s.continuous/30.44).toFixed(1)}mo</span></td>
+      <td class="num">${s.total}d</td>
+      <td class="num">${s.streak}d</td>
+      <td class="num">${s.gapCount}</td>
+      <td class="num">${s.longestGap}d</td>
+    `;
+    const detail = document.createElement('tr');
+    detail.className = 'detail-row';
+    detail.innerHTML = `
+      <td colspan="9">
+        <div class="detail-inner">
+          <div class="detail-title">Underlying enrollments · ${s.enrollments} rows</div>
+          <table class="detail-table">
+            <thead>
+              <tr><th>Class</th><th>Type</th><th>Enroll Date</th><th>Drop Date</th><th>Drop Reason</th><th class="num">Days</th></tr>
+            </thead>
+            <tbody>
+              ${s.rows.map(r => {
+                const start = r._start;
+                const end = r._end;
+                const d = Math.round((end - start) / 86400000) + 1;
+                const isDropped = !!r['Drop Date'];
+                return `<tr>
+                  <td class="${isDropped ? 'dropped' : ''}">${r['Class Name'] || ''}</td>
+                  <td><span class="pill ${pillClass(r['Enroll Type'])}">${r['Enroll Type'] || '—'}</span></td>
+                  <td>${fmtDate(start)}</td>
+                  <td>${r['Drop Date'] ? fmtDate(end) : '<span style="color:var(--mint-700);font-weight:500">active</span>'}</td>
+                  <td>${r['Drop Reason'] || ''}</td>
+                  <td class="num">${d}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </td>
+    `;
+    tr.addEventListener('click', () => {
+      tr.classList.toggle('expanded');
+      detail.classList.toggle('show');
+    });
+    tbody.appendChild(tr);
+    tbody.appendChild(detail);
+  }
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function downloadExcel() {
+  const data = students.map(s => ({
+    'Student': s.name,
+    'Jackrabbit Student ID': s.key,
+    'Enrollments': s.enrollments,
+    'First Enroll Date': fmtDate(s.first),
+    'Last End Date': fmtDate(s.last),
+    'Currently Active': s.activeNow ? 'Yes' : 'No',
+    'Continuous Days': s.continuous,
+    'Continuous Months': +(s.continuous/30.44).toFixed(1),
+    'Total Active Days (sum, overlapping)': s.total,
+    'Longest Streak (days)': s.streak,
+    'Gap Count': s.gapCount,
+    'Longest Gap (days)': s.longestGap,
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Tenure Summary');
+  XLSX.writeFile(wb, 'enrollment_tenure.xlsx');
+}
+
+function reset() {
+  rawRows = []; students = [];
+  document.getElementById('controls').classList.remove('show');
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('tableWrap').classList.remove('show');
+  document.getElementById('notes').classList.remove('show');
+  document.getElementById('callout').classList.remove('show');
+  fileInput.value = '';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function loadSample() {
+  const d = (y,m,day) => new Date(y,m-1,day);
+  const sample = [
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Guppy Gliders Wed 10am',type:'Enrolled',enroll:d(2025,10,22),drop:d(2025,11,15),reason:'Changed Class'},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Masters Swim Wed 7pm',type:'Enrolled',enroll:d(2025,10,22),drop:d(2025,11,20),reason:'Admin Error'},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Adult Swim Fri 5:30pm',type:'Enrolled',enroll:d(2025,11,14),drop:null,reason:''},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Adult Swim Mon 6pm',type:'Drop-in (Single Visit)',enroll:d(2025,11,17),drop:d(2025,11,18),reason:'Drop-in Class'},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Adult Stroke Refinement',type:'Drop-in (Single Visit)',enroll:d(2025,11,18),drop:d(2025,11,19),reason:''},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Adult Learn to Swim',type:'Drop-in (Single Visit)',enroll:d(2025,11,19),drop:d(2025,11,20),reason:''},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Adult Swim Fri 5:30pm',type:'Enrolled',enroll:d(2026,1,1),drop:null,reason:''},
+    {fn:'Annie',ln:'Alexander',sid:1001,cls:'Dolphin Dives Sat 11am',type:'Drop-in (Single Visit)',enroll:d(2026,2,28),drop:d(2026,3,1),reason:''},
+    {fn:'Lindsey',ln:'Alexander',sid:1002,cls:'Guppy Gliders Wed 10am',type:'Enrolled',enroll:d(2025,6,6),drop:d(2025,11,23),reason:'Changed Class'},
+    {fn:'Lindsey',ln:'Alexander',sid:1002,cls:'Masters Swim Wed 7pm',type:'Enrolled',enroll:d(2025,10,22),drop:null,reason:''},
+    {fn:'Lindsey',ln:'Alexander',sid:1002,cls:'Adult Swim Fri 5:30pm',type:'Drop-in (Single Visit)',enroll:d(2025,11,28),drop:d(2025,11,29),reason:''},
+    {fn:'Jacob',ln:'Brown',sid:1003,cls:'Wave Riders Sat 11:30am',type:'Enrolled',enroll:d(2025,5,12),drop:null,reason:''},
+    {fn:'Jacob',ln:'Brown',sid:1003,cls:'Learn to Swim',type:'Enrolled',enroll:d(2025,9,1),drop:null,reason:''},
+    {fn:'Jacob',ln:'Brown',sid:1003,cls:'Dolphin Dives',type:'Enrolled',enroll:d(2026,2,1),drop:null,reason:''},
+    {fn:'Sarah',ln:'Chen',sid:1004,cls:'Learn to Swim',type:'Enrolled',enroll:d(2024,3,1),drop:d(2024,8,15),reason:'Completed'},
+    {fn:'Sarah',ln:'Chen',sid:1004,cls:'Wave Riders',type:'Enrolled',enroll:d(2025,9,1),drop:null,reason:''},
+    {fn:'Marcus',ln:'Williams',sid:1005,cls:'Adult Swim',type:'Enrolled',enroll:d(2026,3,15),drop:null,reason:''},
+    {fn:'Emma',ln:'Davis',sid:1006,cls:'Open Swim',type:'Drop-in (Single Visit)',enroll:d(2026,4,12),drop:d(2026,4,13),reason:''},
+  ];
+  rawRows = sample.map(r => ({
+    'Student First Name': r.fn,
+    'Student Last Name': r.ln,
+    'Jackrabbit Student ID': r.sid,
+    'Class Name': r.cls,
+    'Enroll Type': r.type,
+    'Enroll Date': r.enroll,
+    'Drop Date': r.drop,
+    'Drop Reason': r.reason,
+  }));
+  recompute();
+  document.getElementById('controls').scrollIntoView({behavior:'smooth', block:'start'});
+}
 
 </script>
 </body>
