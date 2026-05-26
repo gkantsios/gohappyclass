@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Integrate Jackrabbit Class with WordPress, Wix, SquareSpace and more!</title>
-<meta name="description" content="Strategic Jackrabbit Class growth partner - WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
+<title>WordPress integration plugin — happyclass</title>
+<meta name="description" content="Connect Jackrabbit Class to your WordPress website, seamlessly. A drop-in calendar and class browser plugin built for studio owners — no coding required.">
 <meta name="theme-color" content="#235EE7">
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" rx="80" fill="%23235EE7"/><path d="M 110 175 Q 200 280 290 175" fill="none" stroke="%23ffffff" stroke-width="34" stroke-linecap="round"/><circle cx="200" cy="120" r="14" fill="%23fbc638"/></svg>'>
-<meta property="og:title" content="Integrate Jackrabbit Class with WordPress, Wix, SquareSpace and more!">
-<meta property="og:description" content="Strategic Jackrabbit Class growth partner - WordPress plugin, universal iFrame embed, custom website integrations, franchise websites, custom dashboards, and data warehouse tools like pulsereview.io.">
+<meta property="og:title" content="WordPress integration plugin — happyclass">
+<meta property="og:description" content="Connect Jackrabbit Class to your WordPress website, seamlessly. A drop-in calendar and class browser plugin built for studio owners — no coding required.">
 <meta property="og:type" content="website">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -873,6 +873,349 @@ body { font-family: var(--font-sans); }
 }
 
 
+.wp-hero {
+  padding: clamp(56px, 8vw, 96px) 0 clamp(40px, 6vw, 64px);
+  background:
+    radial-gradient(900px 500px at 88% -10%, rgba(251, 198, 56, 0.18), transparent 60%),
+    radial-gradient(700px 400px at -10% 30%, rgba(44, 91, 255, 0.10), transparent 60%);
+}
+.wp-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+@media (max-width: 900px) { .wp-hero-grid { grid-template-columns: 1fr; } }
+.wp-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5.4vw, 64px);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  font-weight: 800;
+  color: var(--fg-1, #0c1944);
+  margin: 14px 0 18px;
+}
+.wp-hero h1 .accent { color: var(--happy-600, #2C5BFF); }
+.wp-hero .lede {
+  font-family: var(--font-sans);
+  font-size: clamp(17px, 1.6vw, 19px);
+  line-height: 1.6;
+  color: var(--fg-2, #475578);
+  max-width: 58ch;
+  margin: 0 0 28px;
+}
+.wp-hero-ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.wp-hero-micro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--fg-2, #475578);
+}
+.wp-hero-micro span { display: inline-flex; align-items: center; }
+
+.wp-hero-visual {
+  position: relative;
+  aspect-ratio: 1.2 / 1;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--happy-600, #2C5BFF) 0%, var(--happy-500, #4d75ff) 100%);
+  box-shadow: 0 30px 60px -20px rgba(44, 91, 255, 0.35), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.wp-mock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255,255,255,0.92);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.wp-mock-header .pill {
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+}
+.wp-mock-card {
+  flex: 1;
+  background: #18213d;
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  align-content: start;
+}
+.wp-mock-day {
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--fg-1);
+}
+.wp-mock-slot {
+  background: rgba(255, 182, 215, 0.55);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+}
+.wp-mock-slot.on {
+  background: #ff5fa6;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.25);
+}
+
+.wp-section { padding: clamp(56px, 8vw, 96px) 0; }
+.wp-section.alt {
+  background: linear-gradient(180deg, transparent, rgba(44, 91, 255, 0.04));
+}
+.wp-section-head {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 48px;
+}
+.wp-section-head h2 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.6vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.018em;
+  font-weight: 800;
+  color: var(--fg-1, #0c1944);
+  margin: 12px 0 14px;
+}
+.wp-section-head h2 .accent { color: var(--happy-600, #2C5BFF); }
+.wp-section-head p {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--fg-2, #475578);
+  margin: 0;
+}
+
+.wp-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 800px) { .wp-benefits { grid-template-columns: 1fr; } }
+.wp-benefit {
+  background: #fff;
+  border: 1px solid var(--fg-6, #e2e8f0);
+  border-radius: 16px;
+  padding: 28px 24px;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.wp-benefit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -12px rgba(15, 23, 42, 0.12);
+  border-color: var(--happy-300, #b3c4ff);
+}
+.wp-benefit .ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--happy-50, #eef3ff);
+  color: var(--happy-600, #2C5BFF);
+  margin-bottom: 18px;
+}
+.wp-benefit .ico svg { width: 22px; height: 22px; }
+.wp-benefit.sun .ico { background: var(--sun-50, #fff7e0); color: var(--sun-700, #b07a08); }
+.wp-benefit.coral .ico { background: var(--coral-50, #ffeef0); color: var(--coral-600, #e0497b); }
+.wp-benefit h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--fg-1);
+  margin: 0 0 10px;
+}
+.wp-benefit p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fg-2);
+  margin: 0;
+}
+
+.wp-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 8px;
+}
+@media (max-width: 800px) { .wp-steps { grid-template-columns: 1fr; } }
+.wp-step {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--fg-6, #e2e8f0);
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+}
+.wp-step .num {
+  position: absolute;
+  top: -16px;
+  left: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--happy-600, #2C5BFF);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px -4px rgba(44, 91, 255, 0.45);
+}
+.wp-step h3 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--fg-1);
+  margin: 10px 0 10px;
+}
+.wp-step p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fg-2);
+  margin: 0;
+}
+
+.wp-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 900px) { .wp-showcase { grid-template-columns: 1fr; } }
+.wp-showcase-item {
+  background: #fff;
+  border: 1px solid var(--fg-6, #e2e8f0);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px -16px rgba(15, 23, 42, 0.12);
+}
+.wp-showcase-item .frame {
+  background: var(--fg-7, #f1f5f9);
+  aspect-ratio: 16 / 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.wp-showcase-item .frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.wp-showcase-item .frame .ph {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-3);
+  text-align: center;
+  padding: 24px;
+}
+.wp-showcase-item .label {
+  padding: 18px 20px;
+}
+.wp-showcase-item .label h4 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--fg-1);
+}
+.wp-showcase-item .label p {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--fg-2);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.wp-cta-band {
+  background: linear-gradient(135deg, var(--happy-600, #2C5BFF) 0%, var(--happy-700, #1f3fb3) 100%);
+  border-radius: 24px;
+  padding: clamp(40px, 6vw, 64px);
+  text-align: center;
+  color: #fff;
+  margin: 0 auto;
+  max-width: 1000px;
+  box-shadow: 0 30px 60px -20px rgba(44, 91, 255, 0.45);
+}
+.wp-cta-band h2 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.018em;
+  margin: 0 0 14px;
+  color: #fff;
+}
+.wp-cta-band p {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.86);
+  margin: 0 0 26px;
+  max-width: 56ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.wp-cta-band .hc-btn-primary {
+  background: #fff;
+  color: var(--happy-700, #1f3fb3);
+}
+.wp-cta-band .hc-btn-primary:hover { background: #fff; transform: translateY(-1px); }
+.wp-cta-band .hc-btn-ghost {
+  color: #fff;
+  border-color: rgba(255,255,255,0.4);
+}
+.wp-cta-band .hc-btn-ghost:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+.wp-breadcrumb {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-3, #64748b);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.wp-breadcrumb a {
+  color: var(--fg-3, #64748b);
+  text-decoration: none;
+}
+.wp-breadcrumb a:hover { color: var(--happy-600); }
+.wp-breadcrumb .sep { opacity: 0.5; }
+
 </style>
 
 </head>
@@ -881,7 +1224,7 @@ body { font-family: var(--font-sans); }
 <div class="hc-nav-wrap">
   <div class="container">
     <nav class="hc-nav" aria-label="primary">
-      <a class="hc-brand" href="#top" aria-label="happyclass home">
+      <a class="hc-brand" href="../index.html" aria-label="happyclass home">
         <svg class="hc-logo-svg" aria-label="happyclass" role="img" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 380" preserveAspectRatio="xMidYMid meet">
   <!-- Circular icon -->
   <circle cx="100" cy="165" r="55" fill="#2C5BFF"/>
@@ -898,50 +1241,50 @@ body { font-family: var(--font-sans); }
       </a>
       <div class="hc-nav-links">
         <div class="hc-nav-dropdown">
-          <a href="#services" class="hc-nav-dropdown-trigger" data-passthrough aria-haspopup="true" aria-expanded="false">Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <a href="../index.html#services" class="hc-nav-dropdown-trigger" data-passthrough aria-haspopup="true" aria-expanded="false">Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
           <div class="hc-nav-dropdown-menu" role="menu">
-            <a href="services/wordpress-plugin.html" role="menuitem">
+            <a href="../services/wordpress-plugin.html" role="menuitem" class="current">
               WordPress integration plugin
               <span class="desc">Drop-in calendar &amp; class browser for any WordPress site</span>
             </a>
-            <a href="#services" role="menuitem" class="soon">
+            <a href="../index.html#services" role="menuitem" class="soon">
               iFrame embed
               <span class="desc">Coming soon</span>
             </a>
-            <a href="#services" role="menuitem" class="soon">
+            <a href="../index.html#services" role="menuitem" class="soon">
               Custom integrations
               <span class="desc">Coming soon</span>
             </a>
-            <a href="#services" role="menuitem" class="soon">
+            <a href="../index.html#services" role="menuitem" class="soon">
               Franchise websites
               <span class="desc">Coming soon</span>
             </a>
-            <a href="#services" role="menuitem" class="soon">
+            <a href="../index.html#services" role="menuitem" class="soon">
               Data warehouse
               <span class="desc">Coming soon</span>
             </a>
-            <a href="#services" role="menuitem" class="soon">
+            <a href="../index.html#services" role="menuitem" class="soon">
               Custom dashboards
               <span class="desc">Coming soon</span>
             </a>
           </div>
         </div>
-        <a href="#integration">Integrations</a>
+        <a href="../index.html#integration">Integrations</a>
         <div class="hc-nav-dropdown">
           <a href="#" class="hc-nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Free Tools <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
           <div class="hc-nav-dropdown-menu" role="menu">
-            <a href="tools/enrollment-analyzer.html" role="menuitem">
+            <a href="../tools/enrollment-analyzer.html" role="menuitem">
               Enrollment Analyzer
               <span class="desc">Roll up Jackrabbit enrollments into per-student tenure</span>
             </a>
           </div>
         </div>
-        <a href="#testimonials">Testimonials</a>
-        <a href="#contact">Contact</a>
+        <a href="../index.html#testimonials">Testimonials</a>
+        <a href="../index.html#contact">Contact</a>
       </div>
       <div class="hc-nav-cta">
         <a href="https://pulsereview.io" target="_blank" rel="noopener noreferrer" class="hc-btn hc-btn-ghost">pulsereview.io →</a>
-        <a href="#contact" class="hc-btn hc-btn-primary">Talk to us</a>
+        <a href="../index.html#contact" class="hc-btn hc-btn-primary">Talk to us</a>
       </div>
     </nav>
   </div>
@@ -950,202 +1293,174 @@ body { font-family: var(--font-sans); }
 
 <main>
 
-<section class="hc-hero" id="top">
+<section class="wp-hero">
   <div class="container">
-    <div class="hc-hero-grid">
+    <div class="wp-hero-grid">
       <div>
-        <span class="eyebrow"><span class="dot"></span>STRATEGIC GROWTH PARTNER · JACKRABBIT CLASS</span>
-        <h1>Your Strategic Jackrabbit Class<br><span class="accent">Growth Partner.</span></h1>
+        <span class="wp-breadcrumb">
+          <a href="../index.html">Services</a><span class="sep">/</span><span>WordPress plugin</span>
+        </span>
+        <h1>Connect Jackrabbit Class to your <span class="accent">WordPress website,</span> seamlessly.</h1>
         <p class="lede">
-          We help you leverage Jackrabbit Class to grow your business — from website tools to custom data warehouse applications, we're a jack of all trades. <strong>One of the things we offer is the integration piece.</strong>
+          A purpose-built WordPress plugin that brings your live Jackrabbit class schedule onto your site — branded to your studio, easy for parents to navigate, and zero coding required.
         </p>
-        <div class="hc-hero-ctas">
-          <a class="hc-btn hc-btn-primary hc-btn-lg" href="#contact">Talk to us<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-          <a class="hc-btn hc-btn-secondary hc-btn-lg" href="#services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>See what we offer</a>
+        <div class="wp-hero-ctas">
+          <a class="hc-btn hc-btn-primary hc-btn-lg" href="../index.html#contact">Talk to us <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+          <a class="hc-btn hc-btn-secondary hc-btn-lg" href="#how">See how it works</a>
         </div>
-        <div class="hc-hero-micro">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Integrations on any platform</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom data warehouse</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Franchise-ready websites</span>
+        <div class="wp-hero-micro">
+          <span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"/></svg>Works with your existing WordPress site</span>
+          <span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px;"><polyline points="20 6 9 17 4 12"/></svg>Live Jackrabbit data, always in sync</span>
         </div>
-        <p class="hc-hero-foot">* Requires an active Jackrabbit Class account.</p>
       </div>
-      <div class="hc-hero-visual">
-        
-<div class="hc-hero-card dash">
-  <div class="hc-dash-head">
-    <span class="hc-dash-title">YOUR SCHEDULE · LIVE</span>
-    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 999px; background: var(--mint-50); color: var(--mint-700); border: 1px solid var(--mint-200); font-family: var(--font-mono); font-size: 10px; font-weight: 600;">
-      <span style="width: 5px; height: 5px; border-radius: 999px; background: var(--mint-500);"></span>SYNCED
-    </span>
-  </div>
-  <div class="hc-mini-grid"><div class="hc-mini-day">S</div><div class="hc-mini-day">M</div><div class="hc-mini-day">T</div><div class="hc-mini-day">W</div><div class="hc-mini-day">T</div><div class="hc-mini-day">F</div><div class="hc-mini-day">S</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">8:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot a">10:30</div><div class="hc-mini-slot ">10:30</div><div class="hc-mini-slot ">10:00</div><div class="hc-mini-slot b">9:30</div><div class="hc-mini-slot ">10:00</div><div class="hc-mini-slot ">9:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ab">1:30</div><div class="hc-mini-slot ">11:30</div><div class="hc-mini-slot b">11:00</div><div class="hc-mini-slot ">11:00</div><div class="hc-mini-slot s">3:30</div><div class="hc-mini-slot ">11:00</div><div class="hc-mini-slot ">—</div><div class="hc-mini-slot ">3:00</div><div class="hc-mini-slot ">3:30</div><div class="hc-mini-slot a">3:30</div><div class="hc-mini-slot ">3:30</div><div class="hc-mini-slot ">5:30</div><div class="hc-mini-slot ">3:00</div>
-  </div>
-  <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; font-family: var(--font-sans); font-size: 11px; color: var(--fg-3);">
-    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--happy-300);"></span>Lina · age 6</span>
-    <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 2px; background: var(--coral-300);"></span>Rio · age 3</span>
-  </div>
-</div>
-
-<div class="hc-hero-card qa">
-  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-    <span style="font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">FIND YOUR CLASS</span>
-    <span style="font-family: var(--font-mono); font-size: 10px; color: var(--fg-4);">3 / 3</span>
-  </div>
-  <div class="hc-qa-row"><span>Location</span><strong>Huntersville &nbsp;✓</strong></div>
-  <div class="hc-qa-row"><span>Age</span><strong>19–36 mo &nbsp;✓</strong></div>
-  <div class="hc-qa-row" style="background: var(--happy-500);"><span>Day</span><strong>Saturday &nbsp;✓</strong></div>
-  <div class="hc-qa-cta"><button type="button">See 4 matching classes →</button></div>
-</div>
-
-<div class="hc-hero-card toast">
-  <div class="hc-toast-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-  <div class="hc-toast-text">
-    <strong>New enrollment</strong>
-    <span>Maria booked Tumbling L3 · just now</span>
-  </div>
-</div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="hc-section" id="services">
-  <div class="container">
-    <div class="hc-section-head">
-      <span class="eyebrow"><span class="dot"></span>WHAT WE OFFER</span>
-      <h2>Tools and partnerships <span class="accent">that grow studios.</span></h2>
-      <p>From a plug-and-play WordPress integration to fully custom data warehouse applications, we meet you wherever you are — and grow with you.</p>
-    </div>
-    <div class="hc-services-grid">
-      
-      <article class="hc-service-card">
-        <span class="hc-feature-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">WORDPRESS PLUGIN</span>
-        <h3>WordPress integration plugin</h3>
-        <p>Drop-in calendar, Q&amp;A funnel, and class browser for any WordPress site. Connects to your Jackrabbit Class account in minutes.</p>
-        <a class="hc-service-link" href="services/wordpress-plugin.html">Learn more<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><polyline points="7 9 9 11 7 13"/><line x1="11" y1="13" x2="17" y2="13"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">UNIVERSAL EMBED</span>
-        <h3>iFrame embed for any website</h3>
-        <p>The same integration, without the plugin. Paste a single iframe snippet onto Wix, Squarespace, GoDaddy, Webflow, or anywhere HTML lives.</p>
-        <a class="hc-service-link" href="#contact">See it work<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">CUSTOM INTEGRATIONS</span>
-        <h3>Custom website integrations</h3>
-        <p>Have something unusual in mind? We'll build a bespoke integration tailored to your site, your enrollment flow, and your brand.</p>
-        <a class="hc-service-link" href="#contact">Tell us your idea<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">FRANCHISES</span>
-        <h3>Franchise-ready website development</h3>
-        <p>Multi-location? Multi-brand? We build franchise websites with shared design systems and per-location Jackrabbit data baked in.</p>
-        <a class="hc-service-link" href="#contact">Plan your build<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">DATA WAREHOUSE</span>
-        <h3>Custom data warehouse tools</h3>
-        <p>Like pulsereview.io — purpose-built analytics on top of your Jackrabbit data, so you can finally see what's working and what isn't.</p>
-        <a class="hc-service-link" href="https://pulsereview.io" target="_blank" rel="noopener noreferrer">Visit pulsereview.io<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-      <article class="hc-service-card">
-        <span class="hc-feature-icon sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
-        <span class="eyebrow" style="margin-bottom: var(--space-2);">DASHBOARDS</span>
-        <h3>Custom Jackrabbit Class dashboards</h3>
-        <p>Live KPI dashboards built around the metrics that matter to your studio — enrollment, retention, revenue, capacity utilization.</p>
-        <a class="hc-service-link" href="#contact">Design my dashboard<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="hc-compat" id="integration">
-  <div class="container">
-    <div class="hc-compat-inner">
-      <div class="hc-compat-head">
-        <span class="label">WORKS ANYWHERE</span>
-        <span class="title">If it hosts HTML, it hosts happyclass.</span>
-      </div>
-      <div class="hc-platforms">
-        <div class="hc-platform"><span class="dot" style="background: #21759b;"></span>WordPress</div>
-        <div class="hc-platform"><span class="dot" style="background: #0c6efd;"></span>Wix</div>
-        <div class="hc-platform"><span class="dot" style="background: #000;"></span>Squarespace</div>
-        <div class="hc-platform"><span class="dot" style="background: #5BE595;"></span>GoDaddy</div>
-        <div class="hc-platform"><span class="dot" style="background: var(--fg-3);"></span>Webflow</div>
-        <div class="hc-platform"><span class="dot" style="background: var(--fg-3);"></span>Custom</div>
+      <div class="wp-hero-visual" aria-hidden="true">
+        <div class="wp-mock-header">
+          <span>YOUR SCHEDULE · LIVE</span>
+          <span class="pill">SYNCED</span>
+        </div>
+        <div class="wp-mock-card">
+          <div class="wp-mock-day">S</div>
+<div class="wp-mock-day">M</div>
+<div class="wp-mock-day">T</div>
+<div class="wp-mock-day">W</div>
+<div class="wp-mock-day">T</div>
+<div class="wp-mock-day">F</div>
+<div class="wp-mock-day">S</div>
+<div class="wp-mock-slot">9:30</div>
+<div class="wp-mock-slot on">9:00</div>
+<div class="wp-mock-slot">9:00</div>
+<div class="wp-mock-slot">9:00</div>
+<div class="wp-mock-slot">9:00</div>
+<div class="wp-mock-slot">9:00</div>
+<div class="wp-mock-slot">8:00</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">9:30</div>
+<div class="wp-mock-slot">9:30</div>
+<div class="wp-mock-slot">9:30</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">9:00</div>
+<div class="wp-mock-slot on">10:30</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">10:30</div>
+<div class="wp-mock-slot">10:30</div>
+<div class="wp-mock-slot">10:00</div>
+<div class="wp-mock-slot">11:30</div>
+<div class="wp-mock-slot">10:30</div>
+<div class="wp-mock-slot on">11:00</div>
+<div class="wp-mock-slot">10:30</div>
+<div class="wp-mock-slot">10:30</div>
+<div class="wp-mock-slot">11:30</div>
+<div class="wp-mock-slot">10:30</div>
+<div class="wp-mock-slot">2:00</div>
+<div class="wp-mock-slot">11:00</div>
+<div class="wp-mock-slot">11:30</div>
+<div class="wp-mock-slot on">11:30</div>
+<div class="wp-mock-slot">11:30</div>
+<div class="wp-mock-slot">4:30</div>
+<div class="wp-mock-slot">11:00</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="hc-section" id="testimonials">
+<section class="wp-section alt">
   <div class="container">
-    <div class="hc-section-head">
-      <span class="eyebrow">STUDIOS WE PARTNER WITH</span>
-      <h2>Real studios. Real growth. <span class="accent">Real partnerships.</span></h2>
-      <p>Gymnastics, swim, dance, cheer, music. Different programs — same goal: a smarter Jackrabbit operation and a website that actually helps you grow.</p>
+    <div class="wp-section-head">
+      <span class="eyebrow"><span class="dot"></span>WHY STUDIOS LOVE IT</span>
+      <h2>Built for studio owners, <span class="accent">not developers.</span></h2>
     </div>
-    <div class="hc-testimonials">
-      <article class="hc-testimonial">
-        <div class="stars" aria-label="5 of 5 stars">★★★★★</div>
-        <blockquote>"happyclass worked exactly how I envisioned it. We needed one specific feature — adding multiple students to the calendar — and they found a quick, clean solution. Highly recommend for any swim school on Jackrabbit + WordPress."</blockquote>
-        <div class="who"><div class="avatar">JK</div><div class="name"><strong>John Kirk</strong><span>Little Otter Swim</span></div></div>
+    <div class="wp-benefits">
+      <article class="wp-benefit">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1.2" fill="currentColor"/><circle cx="12" cy="15" r="1.2" fill="currentColor"/><circle cx="16" cy="15" r="1.2" fill="currentColor"/></svg></span>
+        <h3>Display live classes on your site</h3>
+        <p>Your Jackrabbit schedule appears right on your WordPress site, always in sync — no manual updates, no out-of-date PDFs.</p>
       </article>
-      <article class="hc-testimonial">
-        <div class="stars" aria-label="5 of 5 stars">★★★★★</div>
-        <blockquote>"happyclass is always there to support me and my business. The seamless integration with Jackrabbit lets parents find what they need — and, more importantly, actually schedule a class."</blockquote>
-        <div class="who"><div class="avatar">K</div><div class="name"><strong>Kathryn</strong><span>The Swim Lesson People</span></div></div>
+      <article class="wp-benefit sun">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <h3>Built for studio owners</h3>
+        <p>Designed around how parents actually browse and how owners actually run their business — not how engineers think about data.</p>
+      </article>
+      <article class="wp-benefit coral">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <h3>No coding required</h3>
+        <p>We handle the install, configuration, and connection to Jackrabbit. You hand us the keys; we hand you a working site.</p>
       </article>
     </div>
   </div>
 </section>
 
-<section class="hc-section" id="contact">
+<section class="wp-section" id="how">
   <div class="container">
-    <div class="hc-cta">
-      <span class="eyebrow" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.25);"><span class="dot" style="background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25);"></span>LET'S TALK</span>
-      <h2>Ready to grow with happyclass?</h2>
-      <p>Tell us a little about your studio and what you're trying to solve. We'll get back to you within a day with a plan — no sales script.</p>
+    <div class="wp-section-head">
+      <span class="eyebrow"><span class="dot"></span>HOW IT WORKS</span>
+      <h2>Three steps from kickoff <span class="accent">to live on your site.</span></h2>
+      <p>No long onboarding, no IT tickets, no &ldquo;maybe next quarter.&rdquo; A typical setup is wrapped up in days, not weeks.</p>
+    </div>
+    <div class="wp-steps">
+      <div class="wp-step">
+        <span class="num">1</span>
+        <h3>We meet</h3>
+        <p>A quick call to see how you want to display your classes — by location, by age, by class type, or however your studio thinks about it.</p>
+      </div>
+      <div class="wp-step">
+        <span class="num">2</span>
+        <h3>We configure</h3>
+        <p>We install and configure the plugin for your specific Jackrabbit setup — branded to match your site, tuned to your enrollment flow.</p>
+      </div>
+      <div class="wp-step">
+        <span class="num">3</span>
+        <h3>You&rsquo;re live</h3>
+        <p>Classes appear on your site and parents can sign up seamlessly. From day one, your schedule stays in sync with Jackrabbit automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-      <form class="hc-form" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
-        <input type="hidden" name="access_key" value="0dfa3019-5d47-4045-ba1e-5e61d6ef4bbf">
-        <input type="hidden" name="subject" value="New inquiry from gohappyclass.com">
-        <input type="hidden" name="from_name" value="happyclass marketing site">
-        <input type="checkbox" name="botcheck" style="display: none;" tabindex="-1" autocomplete="off">
-        <div class="hc-form-row">
-          <label><span>Name</span><input type="text" name="name" required autocomplete="name" placeholder="Your name"></label>
-          <label><span>Email</span><input type="email" name="email" required autocomplete="email" placeholder="you@studio.com"></label>
+<section class="wp-section alt" id="examples">
+  <div class="container">
+    <div class="wp-section-head">
+      <span class="eyebrow"><span class="dot"></span>EXAMPLES</span>
+      <h2>However you want to <span class="accent">show your classes.</span></h2>
+      <p>The plugin supports multiple display layouts. We&rsquo;ll pick the one that fits how your parents shop for classes.</p>
+    </div>
+    <div class="wp-showcase">
+      <article class="wp-showcase-item">
+        <div class="frame">
+          <img src="img/wp-plugin-grid.png" alt="Weekly schedule grid view showing class times by day of week" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="ph" style="display:none;">Weekly grid view — drop this file at services/img/wp-plugin-grid.png</div>
         </div>
-        <div class="hc-form-row">
-          <label><span>Studio / company</span><input type="text" name="company" autocomplete="organization" placeholder="Studio name (optional)"></label>
-          <label><span>Phone</span><input type="tel" name="phone" required autocomplete="tel" placeholder="(555) 123-4567"></label>
+        <div class="label">
+          <h4>Weekly schedule grid</h4>
+          <p>Parents filter by child, age, and class type, then pick from time slots across the week. Best for studios with structured weekly schedules.</p>
         </div>
-        <label><span>What are you interested in?</span>
-          <select name="interest" required>
-            <option value="" disabled selected>Pick one…</option>
-            <option>WordPress plugin</option>
-            <option>iFrame embed (other platforms)</option>
-            <option>Custom website integration</option>
-            <option>Franchise website</option>
-            <option>Data warehouse / pulsereview</option>
-            <option>Custom Jackrabbit dashboard</option>
-            <option>Not sure yet</option>
-          </select>
-        </label>
-        <label><span>How can we help?</span><textarea name="message" rows="4" required placeholder="A sentence or two is plenty."></textarea></label>
-        <div class="hc-form-error" style="display: none;"></div>
-        <div class="hc-cta-actions">
-          <button type="submit" class="hc-btn hc-btn-primary hc-btn-lg">Send message<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      </article>
+      <article class="wp-showcase-item">
+        <div class="frame">
+          <img src="img/wp-plugin-list.png" alt="List view of camp sessions grouped by day and location" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="ph" style="display:none;">List view — drop this file at services/img/wp-plugin-list.png</div>
         </div>
-        <p class="hc-cta-micro">We typically reply within 4–6 hours, if not sooner. Requires an active Jackrabbit Class account for integration work.</p>
-      </form>
+        <div class="label">
+          <h4>Filterable class list</h4>
+          <p>Parents filter by location, age, and class type to find a specific offering. Best for camps, multi-location studios, or programs with lots of variants.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="wp-section">
+  <div class="container">
+    <div class="wp-cta-band">
+      <h2>Ready to show your classes the way they deserve?</h2>
+      <p>Tell us a bit about your studio and your WordPress site. We&rsquo;ll reply within 4&ndash;6 hours with next steps.</p>
+      <div class="wp-hero-ctas" style="justify-content:center;">
+        <a class="hc-btn hc-btn-primary hc-btn-lg" href="../index.html#contact">Talk to us <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        <a class="hc-btn hc-btn-ghost hc-btn-lg" href="../index.html#services">See other services</a>
+      </div>
     </div>
   </div>
 </section>
@@ -1175,25 +1490,25 @@ body { font-family: var(--font-sans); }
       <div class="hc-footer-col">
         <h4>Services</h4>
         <ul>
-          <li><a href="#services">WordPress plugin</a></li>
-          <li><a href="#services">iFrame embed</a></li>
-          <li><a href="#services">Custom integrations</a></li>
-          <li><a href="#services">Franchise sites</a></li>
-          <li><a href="#services">Custom dashboards</a></li>
+          <li><a href="../index.html#services">WordPress plugin</a></li>
+          <li><a href="../index.html#services">iFrame embed</a></li>
+          <li><a href="../index.html#services">Custom integrations</a></li>
+          <li><a href="../index.html#services">Franchise sites</a></li>
+          <li><a href="../index.html#services">Custom dashboards</a></li>
         </ul>
       </div>
       <div class="hc-footer-col">
         <h4>Free Tools</h4>
         <ul>
-          <li><a href="tools/enrollment-analyzer.html">Enrollment Analyzer</a></li>
+          <li><a href="../tools/enrollment-analyzer.html">Enrollment Analyzer</a></li>
         </ul>
       </div>
       <div class="hc-footer-col">
         <h4>Products</h4>
         <ul>
           <li><a href="https://pulsereview.io" target="_blank" rel="noopener noreferrer">pulsereview.io</a></li>
-          <li><a href="#testimonials">Studios using us</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="../index.html#testimonials">Studios using us</a></li>
+          <li><a href="../index.html#contact">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -1249,37 +1564,7 @@ body { font-family: var(--font-sans); }
 })();
 
 
-(function () {
-  var form = document.getElementById('contactForm');
-  if (!form) return;
-  var btn = form.querySelector('button[type="submit"]');
-  var btnLabel = btn ? btn.innerHTML : '';
-  var errEl = form.querySelector('.hc-form-error');
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
-    if (btn) { btn.disabled = true; btn.innerHTML = 'Sending…'; }
-    var data = new FormData(form);
-    fetch('https://api.web3forms.com/submit', { method: 'POST', body: data })
-      .then(function (r) { return r.json(); })
-      .then(function (json) {
-        if (json && json.success) {
-          var success = document.createElement('div');
-          success.className = 'hc-form-success';
-          success.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><div><strong>Thanks — we got it.</strong><span>We'll be in touch shortly.</span></div>';
-          form.parentNode.replaceChild(success, form);
-        } else {
-          if (errEl) { errEl.style.display = ''; errEl.textContent = (json && json.message) || 'Something went wrong. Please try again.'; }
-          if (btn) { btn.disabled = false; btn.innerHTML = btnLabel; }
-        }
-      })
-      .catch(function () {
-        if (errEl) { errEl.style.display = ''; errEl.textContent = 'Network error. Please try again.'; }
-        if (btn) { btn.disabled = false; btn.innerHTML = btnLabel; }
-      });
-  });
-})();
+// No page-specific JS yet.
 
 </script>
 </body>

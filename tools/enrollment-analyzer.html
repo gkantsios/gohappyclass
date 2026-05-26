@@ -859,6 +859,18 @@ body { font-family: var(--font-sans); }
   color: var(--brand);
   margin-right: 4px;
 }
+.hc-nav-dropdown-menu a.soon {
+  color: var(--fg-3, #64748b);
+  cursor: default;
+}
+.hc-nav-dropdown-menu a.soon:hover {
+  background: transparent;
+  color: var(--fg-3, #64748b);
+}
+.hc-nav-dropdown-menu a.soon .desc {
+  font-style: italic;
+  color: var(--fg-4, #94a3b8);
+}
 
 
 /* ----- enrollment-analyzer page ----- */
@@ -1322,7 +1334,35 @@ body { font-family: var(--font-sans); }
 </svg>
       </a>
       <div class="hc-nav-links">
-        <a href="../index.html#services">Services</a>
+        <div class="hc-nav-dropdown">
+          <a href="../index.html#services" class="hc-nav-dropdown-trigger" data-passthrough aria-haspopup="true" aria-expanded="false">Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="hc-nav-dropdown-menu" role="menu">
+            <a href="../services/wordpress-plugin.html" role="menuitem">
+              WordPress integration plugin
+              <span class="desc">Drop-in calendar &amp; class browser for any WordPress site</span>
+            </a>
+            <a href="../index.html#services" role="menuitem" class="soon">
+              iFrame embed
+              <span class="desc">Coming soon</span>
+            </a>
+            <a href="../index.html#services" role="menuitem" class="soon">
+              Custom integrations
+              <span class="desc">Coming soon</span>
+            </a>
+            <a href="../index.html#services" role="menuitem" class="soon">
+              Franchise websites
+              <span class="desc">Coming soon</span>
+            </a>
+            <a href="../index.html#services" role="menuitem" class="soon">
+              Data warehouse
+              <span class="desc">Coming soon</span>
+            </a>
+            <a href="../index.html#services" role="menuitem" class="soon">
+              Custom dashboards
+              <span class="desc">Coming soon</span>
+            </a>
+          </div>
+        </div>
         <a href="../index.html#integration">Integrations</a>
         <div class="hc-nav-dropdown">
           <a href="#" class="hc-nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Free Tools <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
@@ -1521,7 +1561,9 @@ body { font-family: var(--font-sans); }
     onScroll();
   }
   // Allow click-to-toggle dropdown for touch users; hover already handles desktop.
+  // Triggers marked data-passthrough navigate instead (e.g. Services scrolls to #services).
   document.querySelectorAll('.hc-nav-dropdown-trigger').forEach(function (t) {
+    if (t.hasAttribute('data-passthrough')) return;
     t.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
