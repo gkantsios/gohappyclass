@@ -908,6 +908,14 @@ body { font-family: var(--font-sans); }
 }
 
 @media (max-width: 860px) {
+  /* backdrop-filter on .hc-nav-wrap would make it the containing block for fixed
+     descendants (panel would position itself inside the 68px nav bar). Drop it
+     on mobile and use a solid background instead. */
+  .hc-nav-wrap {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #fff;
+  }
   .hc-mobile-toggle { display: inline-flex; }
   .hc-mobile-scrim { display: block; }
 
