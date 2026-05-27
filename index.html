@@ -1023,6 +1023,9 @@ body { font-family: var(--font-sans); }
   body.menu-locked { overflow: hidden; }
 }
 
+/* Hide the secondary eyebrow segment on very small screens */
+@media (max-width: 480px) { .hc-hide-sm { display: none; } }
+
 
 </style>
 
@@ -1110,7 +1113,7 @@ body { font-family: var(--font-sans); }
   <div class="container">
     <div class="hc-hero-grid">
       <div>
-        <span class="eyebrow"><span class="dot"></span>STRATEGIC GROWTH PARTNER · JACKRABBIT CLASS</span>
+        <span class="eyebrow"><span class="dot"></span>STRATEGIC GROWTH PARTNER<span class="hc-hide-sm"> · JACKRABBIT CLASS</span></span>
         <h1>Your Strategic Jackrabbit Class<br><span class="accent">Growth Partner.</span></h1>
         <p class="lede">
           We help you leverage Jackrabbit Class to grow your business — from website tools to custom data warehouse applications, we're a jack of all trades. <strong>One of the things we offer is the integration piece.</strong>
@@ -1465,7 +1468,7 @@ body { font-family: var(--font-sans); }
         if (json && json.success) {
           var success = document.createElement('div');
           success.className = 'hc-form-success';
-          success.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><div><strong>Thanks — we got it.</strong><span>We'll be in touch shortly.</span></div>';
+          success.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><div><strong>Thanks — we got it.</strong><span>We\'ll be in touch shortly.</span></div>';
           form.parentNode.replaceChild(success, form);
         } else {
           if (errEl) { errEl.style.display = ''; errEl.textContent = (json && json.message) || 'Something went wrong. Please try again.'; }

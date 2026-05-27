@@ -1023,6 +1023,9 @@ body { font-family: var(--font-sans); }
   body.menu-locked { overflow: hidden; }
 }
 
+/* Hide the secondary eyebrow segment on very small screens */
+@media (max-width: 480px) { .hc-hide-sm { display: none; } }
+
 
 /* Re-declare base layout - inherits same structure as WP page so they look uniform. */
 .wp-hero {
