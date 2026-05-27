@@ -872,6 +872,157 @@ body { font-family: var(--font-sans); }
   color: var(--fg-4, #94a3b8);
 }
 
+/* ---- Mobile menu (hamburger) ---- */
+.hc-mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 8px;
+  margin: 0;
+  cursor: pointer;
+  color: var(--fg-1, #0c1944);
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.hc-mobile-toggle:hover { background: var(--bg-sunken, #f1f5f9); }
+.hc-mobile-toggle svg { width: 26px; height: 26px; display: block; }
+.hc-mobile-toggle .hc-icon-close { display: none; }
+.hc-nav-wrap.menu-open .hc-mobile-toggle .hc-icon-bars { display: none; }
+.hc-nav-wrap.menu-open .hc-mobile-toggle .hc-icon-close { display: block; }
+
+.hc-mobile-scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 49;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.hc-nav-wrap.menu-open .hc-mobile-scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 860px) {
+  .hc-mobile-toggle { display: inline-flex; }
+  .hc-mobile-scrim { display: block; }
+
+  /* Hide CTA and nav links by default; slide in as a panel when open */
+  .hc-nav-links,
+  .hc-nav-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    background: #fff;
+    z-index: 50;
+    transition: transform 0.28s ease;
+  }
+  .hc-nav-links {
+    top: 68px;
+    bottom: 96px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 12px 18px 24px;
+    overflow-y: auto;
+    transform: translateX(105%);
+    -webkit-overflow-scrolling: touch;
+  }
+  .hc-nav-cta {
+    bottom: 0;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border, #e2e8f0);
+    flex-direction: column;
+    gap: 8px;
+    transform: translateX(105%);
+    box-shadow: 0 -10px 24px -16px rgba(15, 23, 42, 0.12);
+  }
+  .hc-nav-wrap.menu-open .hc-nav-links,
+  .hc-nav-wrap.menu-open .hc-nav-cta {
+    transform: translateX(0);
+  }
+  .hc-nav-cta a {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Flat nav items as stacked rows */
+  .hc-nav-links > a {
+    display: block;
+    padding: 14px 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg-1, #0c1944);
+    border-bottom: 1px solid var(--border, #e2e8f0);
+  }
+
+  /* Dropdowns become collapsible accordions */
+  .hc-nav-dropdown { display: block; width: 100%; }
+  .hc-nav-dropdown-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 14px 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg-1, #0c1944);
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    border-radius: 0;
+  }
+  .hc-nav-dropdown-trigger svg { width: 14px; height: 14px; }
+  .hc-nav-dropdown-menu {
+    position: static;
+    display: block;
+    box-shadow: none;
+    background: var(--bg-sunken, #f8fafc);
+    border-radius: 0;
+    border: 0;
+    padding: 0;
+    margin: 0 -18px;
+    opacity: 1;
+    transform: none;
+    visibility: hidden;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, visibility 0s 0.25s;
+    min-width: 0;
+  }
+  .hc-nav-dropdown-menu::before { display: none; }
+  .hc-nav-dropdown.open .hc-nav-dropdown-menu {
+    visibility: visible;
+    max-height: 900px;
+    transition: max-height 0.3s ease, visibility 0s;
+  }
+  .hc-nav-dropdown-menu a {
+    padding: 12px 24px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    border-radius: 0;
+  }
+  .hc-nav-dropdown-menu a:last-child { border-bottom: 0; }
+
+  /* Disable hover on touch — only explicit toggle should open */
+  .hc-nav-dropdown:hover .hc-nav-dropdown-menu {
+    visibility: hidden;
+    max-height: 0;
+  }
+  .hc-nav-dropdown.open:hover .hc-nav-dropdown-menu {
+    visibility: visible;
+    max-height: 900px;
+  }
+  .hc-nav-dropdown:hover .hc-nav-dropdown-trigger svg,
+  .hc-nav-dropdown.open .hc-nav-dropdown-trigger svg { transform: rotate(0deg); }
+  .hc-nav-dropdown.open .hc-nav-dropdown-trigger svg { transform: rotate(180deg); }
+
+  body.menu-locked { overflow: hidden; }
+}
+
 
 .wp-hero {
   padding: clamp(56px, 8vw, 96px) 0 clamp(40px, 6vw, 64px);
@@ -1067,7 +1218,11 @@ body { font-family: var(--font-sans); }
   <path d="M 385 298 C 395 360, 487 360, 497 298" fill="none" stroke="#2C5BFF" stroke-width="13" stroke-linecap="round"/>
 </svg>
       </a>
-      <div class="hc-nav-links">
+      <button class="hc-mobile-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="hc-mobile-menu">
+        <svg class="hc-icon-bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+        <svg class="hc-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+      <div class="hc-nav-links" id="hc-mobile-menu">
         <div class="hc-nav-dropdown">
           <a href="../../#services" class="hc-nav-dropdown-trigger" data-passthrough aria-haspopup="true" aria-expanded="false">Services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
           <div class="hc-nav-dropdown-menu" role="menu">
@@ -1116,6 +1271,7 @@ body { font-family: var(--font-sans); }
       </div>
     </nav>
   </div>
+  <div class="hc-mobile-scrim" aria-hidden="true"></div>
 </div>
 
 <main>
@@ -1341,21 +1497,63 @@ body { font-family: var(--font-sans); }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
-  // Allow click-to-toggle dropdown for touch users; hover already handles desktop.
-  // Triggers marked data-passthrough navigate instead (e.g. Services scrolls to #services).
+  // Click-to-toggle dropdown for touch users; hover already handles desktop.
+  // Triggers marked data-passthrough normally navigate (e.g. Services scrolls to #services),
+  // but on mobile we treat them as accordion toggles instead.
+  var mobileMQ = window.matchMedia('(max-width: 860px)');
+  function isMobile() { return mobileMQ.matches; }
   document.querySelectorAll('.hc-nav-dropdown-trigger').forEach(function (t) {
-    if (t.hasAttribute('data-passthrough')) return;
     t.addEventListener('click', function (e) {
+      var passthrough = t.hasAttribute('data-passthrough');
+      // Desktop + passthrough: let the link navigate normally
+      if (passthrough && !isMobile()) return;
       e.preventDefault();
       e.stopPropagation();
       var dd = t.closest('.hc-nav-dropdown');
       if (!dd) return;
-      // Close any other open dropdowns first
       document.querySelectorAll('.hc-nav-dropdown.open').forEach(function (other) {
         if (other !== dd) other.classList.remove('open');
       });
       dd.classList.toggle('open');
     });
+  });
+
+  // Mobile hamburger toggle
+  var navWrap = document.querySelector('.hc-nav-wrap');
+  var toggleBtn = document.querySelector('.hc-mobile-toggle');
+  var scrim = document.querySelector('.hc-mobile-scrim');
+  function setMenu(open) {
+    if (!navWrap || !toggleBtn) return;
+    navWrap.classList.toggle('menu-open', open);
+    document.body.classList.toggle('menu-locked', open);
+    toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // Close any dropdowns when closing the menu
+    if (!open) {
+      document.querySelectorAll('.hc-nav-dropdown.open').forEach(function (dd) {
+        dd.classList.remove('open');
+      });
+    }
+  }
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      setMenu(!navWrap.classList.contains('menu-open'));
+    });
+  }
+  if (scrim) {
+    scrim.addEventListener('click', function () { setMenu(false); });
+  }
+  // Close mobile menu when navigating via any link inside it (but not when toggling a dropdown)
+  document.querySelectorAll('.hc-nav-links a, .hc-nav-cta a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (a.classList.contains('hc-nav-dropdown-trigger')) return;
+      if (isMobile()) setMenu(false);
+    });
+  });
+  // If viewport grows past mobile breakpoint, close the menu cleanly
+  mobileMQ.addEventListener && mobileMQ.addEventListener('change', function (e) {
+    if (!e.matches) setMenu(false);
   });
   // Close on click outside any dropdown
   document.addEventListener('click', function (e) {
@@ -1369,6 +1567,7 @@ body { font-family: var(--font-sans); }
       document.querySelectorAll('.hc-nav-dropdown.open').forEach(function (dd) {
         dd.classList.remove('open');
       });
+      if (navWrap && navWrap.classList.contains('menu-open')) setMenu(false);
     }
   });
 })();
