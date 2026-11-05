@@ -1230,8 +1230,19 @@ body { font-family: var(--font-sans); }
 
 </style>
 
+<style>
+.hc-demo-bar { background: #1a47b3; color: #fff; font-family: 'Lato', -apple-system, sans-serif; font-size: 14px; text-align: center; }
+.hc-demo-bar a { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 10px; padding: 9px 16px; color: #fff; text-decoration: none; }
+.hc-demo-bar .tag { padding: 2px 8px; border-radius: 999px; background: #fbc638; color: #0c1944; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.hc-demo-bar .go { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.hc-demo-bar a:hover .go { text-decoration-thickness: 2px; }
+@media (max-width: 860px) { body:has(.hc-nav-wrap.menu-open) .hc-demo-bar { display: none; } }
+@media (max-width: 520px) { .hc-demo-bar .long { display: none; } }
+</style>
 </head>
 <body>
+
+<div class="hc-demo-bar"><a href="../../demo/"><span class="tag">New</span><span class="long">See our Jackrabbit WordPress plugin in action with sample classes.</span><span class="go">View a live demo →</span></a></div>
 
 <div class="hc-nav-wrap">
   <div class="container">
