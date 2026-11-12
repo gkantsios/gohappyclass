@@ -113,13 +113,14 @@
 		return {
 			name: c.name, org: String(c.org), days: c.days || [], start: c.start, end: c.end, sd: c.sd, ed: c.ed,
 			loc: c.loc, locName: c.location ? c.location.name : '', price: c.price, fee: c.fee === undefined ? null : c.fee,
-			billing: c.billing || (c.monthly ? 'monthly' : ''), full: !!c.full, ext: !!c.ext, reg: c.reg, type: c.type, cat: c.cat
+			billing: c.billing || (c.monthly ? 'monthly' : ''), full: !!c.full, ext: !!c.ext, reg: c.reg, type: c.type, cat: c.cat,
+			session: c.session || '', source: c.source || '', camp_id: c.camp_id || 0
 		};
 	}
 
 	function has(classId, childId) {
 		return state.items.some(function (it) {
-			return it.id === classId && (!childId || it.child === childId);
+			return String(it.id) === String(classId) && (!childId || it.child === childId);
 		});
 	}
 
@@ -134,7 +135,7 @@
 
 	function remove(classId, childId) {
 		state.items = state.items.filter(function (it) {
-			return !(it.id === classId && (!childId || it.child === childId));
+			return !(String(it.id) === String(classId) && (!childId || it.child === childId));
 		});
 		write();
 	}
@@ -179,6 +180,7 @@
 		var orgs = {};
 		state.children.forEach(function (ch, idx) {
 			itemsFor(ch.id).forEach(function (it) {
+				if (it.c.source === 'camps') return;
 				var o = it.c.org;
 				orgs[o] = orgs[o] || [];
 				var entry = orgs[o].find(function (e) { return e.child === ch.id; });
@@ -214,6 +216,24 @@
 			}
 		});
 		return links;
+	}
+
+	/**
+	 * Camps register through the Parent Portal (login required): one link per
+	 * camp, listing which children it is for. Returns [{ org, camp, name, url, names }].
+	 */
+	function campLinks() {
+		var out = {};
+		state.children.forEach(function (ch) {
+			itemsFor(ch.id).forEach(function (it) {
+				if (it.c.source !== 'camps') return;
+				var k = it.c.org + ':' + it.c.camp_id;
+				out[k] = out[k] || { org: it.c.org, camp: it.c.camp_id, name: it.c.name, url: it.c.reg, names: [] };
+				var label = childLabel(ch.id);
+				if (out[k].names.indexOf(label) === -1) out[k].names.push(label);
+			});
+		});
+		return Object.keys(out).map(function (k) { return out[k]; });
 	}
 
 	/* ------------------------------------------------------------ Clashes */
@@ -307,7 +327,7 @@
 	}
 
 	function paint(b) {
-		var id = +b.getAttribute('data-class');
+		var id = b.getAttribute('data-class');
 		var child = b.getAttribute('data-child');
 		var inPlan = has(id, child || null);
 		b.classList.toggle('is-added', inPlan);
@@ -365,7 +385,7 @@
 
 	function toast(c, childId) {
 		if (!toastEl) {
-			toastEl = el('div', { class: 'jrcc jrcc-toast', role: 'status', 'aria-live': 'polite' });
+			toastEl = el('div', { class: 'jrcc jrcc-toast' + (CART.position === 'center' ? ' is-above-fab' : ''), role: 'status', 'aria-live': 'polite' });
 			document.body.appendChild(toastEl);
 		}
 		J.clear(toastEl);
@@ -389,7 +409,7 @@
 	function refreshFab() {
 		if (!CART.enabled || !document.querySelector('.jrcc-widget')) return;
 		if (!fab) {
-			fab = el('button', { type: 'button', class: 'jrcc jrcc-fab', onclick: openDrawer });
+			fab = el('button', { type: 'button', class: 'jrcc jrcc-fab jrcc-fab-' + (CART.position || 'right'), onclick: openDrawer });
 			document.body.appendChild(fab);
 		}
 		var n = state.items.length;
@@ -448,8 +468,10 @@
 					return el('li', { class: 'jrcc-plan-item' + (warn.length ? ' has-clash' : '') }, [
 						el('div', { class: 'jrcc-plan-item-main' }, [
 							el('strong', null, c.name),
-							el('span', { class: 'jrcc-muted' }, [J.fmtDays(c.days), J.fmtTimeRange(c), c.locName].filter(Boolean).join(' · ')),
-							D.showDates && c.sd ? el('span', { class: 'jrcc-muted' }, J.fmtDateRange(c)) : null,
+							c.source === 'camps'
+								? el('span', { class: 'jrcc-muted' }, [J.sessionLabel(c), J.fmtDateRange(c), J.fmtTimeRange(c), c.locName].filter(Boolean).join(' · '))
+								: el('span', { class: 'jrcc-muted' }, [J.fmtDays(c.days), J.fmtTimeRange(c), c.locName].filter(Boolean).join(' · ')),
+							D.showDates && c.sd && c.source !== 'camps' ? el('span', { class: 'jrcc-muted' }, J.fmtDateRange(c)) : null,
 							warn.map(function (w) { return el('span', { class: 'jrcc-plan-warn' }, '⚠ ' + w); })
 						]),
 						el('div', { class: 'jrcc-plan-item-side' }, [
@@ -475,6 +497,7 @@
 			}
 			var links = registrationLinks();
 			var portalOrgs = {};
+			var camps = campLinks();
 			links.forEach(function (l) {
 				var label = l.group ? (l.group[0] === l.group[1] ? J.sprintf(T.regChild, l.names[0]) : J.sprintf(T.regGroup, l.group[0], l.group[1])) : L.regAll + ' (' + (l.count === 1 ? T.classCount1 : J.sprintf(T.classCount, l.count)) + ')';
 				var orgName = orgLabel(l.org);
@@ -488,8 +511,24 @@
 					onclick: function (e) { track('jackrabbit_register_all', null, { org_id: l.org, classes: l.count, children: l.names.length }); J.demoGate(e, l.url); }
 				}, label));
 			});
-			foot.appendChild(el('p', { class: 'jrcc-muted jrcc-small' }, T.regNote));
-			if (CART.portal) {
+			if (links.length) foot.appendChild(el('p', { class: 'jrcc-muted jrcc-small' }, T.regNote));
+			if (camps.length) {
+				var campBox = el('div', { class: 'jrcc-plan-camps' }, [
+					el('strong', null, T.campsPortal),
+					el('p', { class: 'jrcc-muted jrcc-small' }, T.campsPortalNote)
+				]);
+				camps.forEach(function (cl) {
+					campBox.appendChild(el('a', {
+						class: 'jrcc-btn ' + (links.length ? 'jrcc-btn-ghost' : 'jrcc-btn-primary') + ' jrcc-btn-block',
+						href: cl.url,
+						target: D.newTab ? '_blank' : null,
+						rel: D.newTab ? 'noopener' : null,
+						onclick: function (e) { track('jackrabbit_register_camp', null, { org_id: cl.org, camp_id: String(cl.camp), children: cl.names.length }); J.demoGate(e, cl.url); }
+					}, J.sprintf(T.campRegister, cl.name) + (cl.names.length ? ' (' + cl.names.join(', ') + ')' : '')));
+				});
+				foot.appendChild(campBox);
+			}
+			if (CART.portal && links.length) {
 				Object.keys(portalOrgs).forEach(function (org) {
 					foot.appendChild(el('a', { class: 'jrcc-small', href: CART.portalUrl + (CART.portalUrl.indexOf('?') === -1 ? '?' : '&') + 'orgID=' + encodeURIComponent(org), target: '_blank', rel: 'noopener', onclick: function (e) { J.demoGate(e, this.href); } }, T.portal + (Object.keys(portalOrgs).length > 1 && portalOrgs[org] ? ' (' + portalOrgs[org] + ')' : '')));
 				});

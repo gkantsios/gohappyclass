@@ -172,8 +172,10 @@
 		var hasMax = c.max !== null && c.max !== undefined && c.max > 0;
 		if (hasMin && hasMax) {
 			// "16 mo–6 yrs" rather than the ambiguous "16 mo–6".
-			var hi = ageNum(c.max);
+			// Jackrabbit stores "through age 4" as 4 years 11 months.
+			var hi = c.max % 12 === 11 ? String((c.max + 1) / 12 - 1) : ageNum(c.max);
 			if (ageNum(c.min).indexOf(T.months) !== -1 && hi.indexOf(T.months) === -1) hi += ' ' + T.years;
+			if (hi === ageNum(c.min)) return T.age + ' ' + hi;
 			return T.ages + ' ' + ageNum(c.min) + '–' + hi;
 		}
 		if (hasMin) return T.ages + ' ' + sprintf(T.agePlus, ageNum(c.min));
@@ -229,23 +231,355 @@
 					if (!r.ok) throw new Error('HTTP ' + r.status);
 					return r.json();
 				})
+				.then(withLive)
 				.then(prepare);
 		}
 		return cache[key];
 	}
 
+	/* -------------------------------------------------------- Live openings */
+
+	/*
+	 * Visitors' browsers read each organization's openings straight from
+	 * Jackrabbit (its feed allows any website to), so spots left, Full and
+	 * waitlist are current to the second. The saved snapshot from the last
+	 * scheduled refresh is the fallback, and still supplies map locations.
+	 * The rules below mirror jrcc_normalize_row() in includes/jackrabbit-api.php.
+	 */
+	var LIVE = C.live || {};
+	var LIVE_TTL = 60000; // Reuse a fetch across page views and tabs for a minute.
+
+	function sigNorm(v) {
+		return String(v === null || v === undefined ? '' : v).replace(/<[^>]*>/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+	}
+
+	function rowSig(row, org) {
+		return [String(org), sigNorm(row.location_code), sigNorm(row.room), sigNorm(row.location_addr1), sigNorm(row.location_city)].join('|');
+	}
+
+	function periodToMonths(v) {
+		if (typeof v === 'number') return Math.round(v * 12);
+		var m = typeof v === 'string' && v !== 'P' ? v.match(/^P(?:(\d+)Y)?(?:(\d+)M)?$/) : null;
+		return m ? (+(m[1] || 0)) * 12 + (+(m[2] || 0)) : null;
+	}
+
+	function parseDays(days) {
+		var map = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 7 };
+		var out = [];
+		Object.keys(days || {}).forEach(function (k) {
+			var n = map[String(k).slice(0, 3).toLowerCase()];
+			if (days[k] && n && out.indexOf(n) === -1) out.push(n);
+		});
+		return out.sort();
+	}
+
+	function cleanTime(t) {
+		var m = String(t || '').match(/^(\d{1,2}):(\d{2})/);
+		return m ? (m[1].length === 1 ? '0' : '') + m[1] + ':' + m[2] : '';
+	}
+
+	function cleanDate(d) {
+		var m = String(d || '').match(/^\d{4}-\d{2}-\d{2}/);
+		return m ? m[0] : '';
+	}
+
+	function hasAny(text, words) {
+		text = String(text || '').toLowerCase();
+		return (words || []).some(function (w) { return w && text.indexOf(w) !== -1; });
+	}
+
+	function safeUrl(u) {
+		u = String(u || '').replace(/&amp;/g, '&').trim();
+		return /^https?:\/\//i.test(u) ? u : '';
+	}
+
+	function textOnly(html) {
+		var div = document.createElement('div');
+		div.innerHTML = String(html || '').replace(/<(script|style)[\s\S]*?<\/\1>/gi, '');
+		return div.textContent || '';
+	}
+
+	/** Plain text → safe HTML paragraphs (new classes only; known classes keep the server-cleaned text). */
+	function textToHtml(text) {
+		var esc = function (t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+		return String(text || '').split(/\n{2,}/).map(function (p) { return p.trim(); }).filter(Boolean).map(function (p) {
+			return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>';
+		}).join('');
+	}
+
+	function formatPrice(fee, billing) {
+		if (!fee || fee <= 0) return '';
+		var amount = Math.floor(fee) === fee ? fee.toLocaleString() : fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+		var suffix = (LIVE.suffix || {})[String(billing || '').toLowerCase().trim()] || '';
+		return sprintf(LIVE.priceFormat || '$%1$s%2$s', amount, suffix);
+	}
+
+	/** Same as WordPress's sanitize_text_field(): no tags, single spaces. */
+	function txt(v) {
+		return String(v === null || v === undefined ? '' : v).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+	}
+
+	function normalizeLive(row, org, known, sigs, today) {
+		var id = parseInt(row.id, 10);
+		if (!id) return null;
+		var name = txt(row.name);
+		var cat1 = txt(row.category1);
+		var cat2 = txt(row.category2);
+		var cat3 = txt(row.category3);
+		var ed = cleanDate(row.end_date);
+		if (ed && ed < today) return null;
+		if (LIVE.exclude && LIVE.exclude.length && hasAny(name + ' ' + cat1 + ' ' + cat2 + ' ' + cat3, LIVE.exclude)) return null;
+
+		var before = known[id];
+		var isCamp = hasAny(cat1 + ' ' + cat2 + ' ' + cat3 + ' ' + name, LIVE.campWords || ['camp']);
+		var fee = row.tuition && row.tuition.fee ? parseFloat(row.tuition.fee) || 0 : 0;
+		var billing = String(row.BillingCycle || '').trim();
+		var hidePrice = (LIVE.hidePrices || []).indexOf(String(org)) !== -1;
+		var desc = before ? before.desc : textToHtml(textOnly(row.description));
+
+		var reg = safeUrl(row.online_reg_link);
+		var ext = '';
+		if (LIVE.extLinks === 'all' || (LIVE.extLinks === 'camps' && isCamp)) {
+			var m = textOnly(row.description).match(/https?:\/\/[^\s<>"']+/i);
+			if (m && m[0].toLowerCase().indexOf('jackrabbitclass.com') === -1) {
+				ext = safeUrl(m[0].replace(/[.,;:)]+$/, ''));
+				if (ext) reg = ext;
+			}
+		}
+
+		var sig = rowSig(row, org);
+		var loc = sigs.hasOwnProperty(sig) ? sigs[sig] : (before ? before.loc : '');
+		if (loc === '-') return null; // Location hidden by the site owner.
+
+		var open = row.openings && row.openings.calculated_openings !== undefined && row.openings.calculated_openings !== null && !isNaN(row.openings.calculated_openings)
+			? parseInt(row.openings.calculated_openings, 10) : null;
+		var priceSame = before && before.fee === (fee > 0 ? fee : null) && before.billing === billing.toLowerCase();
+
+		return {
+			id: id,
+			org: String(org),
+			name: name,
+			desc: desc,
+			cat1: cat1,
+			cat2: cat2,
+			cat3: cat3,
+			session: txt(row.session),
+			gender: row.gender && row.gender !== 'All' ? txt(row.gender) : '',
+			days: parseDays(row.meeting_days),
+			start: cleanTime(row.start_time),
+			end: cleanTime(row.end_time),
+			sd: cleanDate(row.start_date),
+			ed: ed,
+			min: periodToMonths(row.min_age),
+			max: periodToMonths(row.max_age),
+			open: open,
+			wait: !!row.waitlist,
+			price: hidePrice ? '' : (priceSame ? before.price : formatPrice(fee, billing)),
+			monthly: billing.toLowerCase() === 'monthly',
+			fee: !hidePrice && fee > 0 ? fee : null,
+			billing: billing.toLowerCase(),
+			reg: reg,
+			ext: !!ext,
+			reg_start: cleanDate(row.reg_start_date),
+			instructors: Array.isArray(row.instructors) ? row.instructors.map(txt).filter(Boolean) : [],
+			room: before ? before.room : '',
+			type: isCamp ? 'camp' : 'class',
+			loc: loc,
+			live: true
+		};
+	}
+
+	function fetchFeed(org, camps) {
+		var store = (camps ? 'jrcc-live-camps-' : 'jrcc-live-') + org;
+		try {
+			var hit = JSON.parse(window.localStorage.getItem(store) || 'null');
+			if (hit && Date.now() - hit.t < LIVE_TTL) return Promise.resolve(hit.rows);
+		} catch (e) { /* storage unavailable */ }
+		var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+		var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, LIVE.timeout || 2500);
+		var url = camps ? LIVE.campsFeed + '?orgId=' + encodeURIComponent(org) : LIVE.feed + '?orgid=' + encodeURIComponent(org);
+		return fetch(url, { signal: ctrl ? ctrl.signal : undefined, credentials: 'omit' })
+			.then(function (r) {
+				if (!r.ok) throw new Error('HTTP ' + r.status);
+				return r.json();
+			})
+			.then(function (json) {
+				clearTimeout(timer);
+				if (!json || json.success === false || !Array.isArray(json.rows)) throw new Error('feed');
+				try { window.localStorage.setItem(store, JSON.stringify({ t: Date.now(), rows: json.rows })); } catch (e) { /* full or blocked */ }
+				return json.rows;
+			}, function (err) {
+				clearTimeout(timer);
+				throw err;
+			});
+	}
+
+	/**
+	 * Replace each organization's snapshot classes with live ones. Orgs whose
+	 * feed fails or is slow keep their snapshot classes.
+	 */
+	/* Camps module rows; mirrors jrcc_normalize_camp() in includes/camps.php. */
+
+	function campTime(v, after) {
+		var m = String(v || '').trim().match(/^(\d{1,2}):(\d{2})\s*([ap])?/i);
+		if (!m) return '';
+		var h = parseInt(m[1], 10);
+		var ap = m[3] ? m[3].toLowerCase() : '';
+		if (ap === 'a') h = h % 12;
+		else if (ap === 'p') h = h % 12 + 12;
+		else if (after && h < 12 && (h < 10 ? '0' : '') + h + ':' + m[2] < after) h += 12;
+		return (h < 10 ? '0' : '') + h + ':' + m[2];
+	}
+
+	function campAges(text) {
+		var parts = String(text || '').trim().split(/\s*[-–]\s*/);
+		var one = function (s2) {
+			s2 = String(s2 || '').toLowerCase();
+			var y = s2.match(/(\d+)\s*y/);
+			var mo = s2.match(/(\d+)\s*mo/);
+			if (!y && !mo) return null;
+			return (y ? +y[1] : 0) * 12 + (mo ? +mo[1] : 0);
+		};
+		return [one(parts[0]), one(parts[1])];
+	}
+
+	function campDays(sd, ed) {
+		if (!sd) return [];
+		var d = parseDate(sd);
+		var end = parseDate(ed || sd);
+		var days = [];
+		for (var i = 0; d <= end && i < 7; i++) {
+			var n = d.getDay() === 0 ? 7 : d.getDay();
+			if (days.indexOf(n) === -1) days.push(n);
+			d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+		}
+		if (days.length >= 5) {
+			var weekdays = days.filter(function (n2) { return n2 < 6; });
+			if (weekdays.length) days = weekdays;
+		}
+		return days.sort();
+	}
+
+	function normalizeCamp(row, org, known, today) {
+		var sid = parseInt(row.SessionId, 10);
+		if (!sid) return null;
+		var id = 'camp-' + sid;
+		var sd = cleanDate(row.SessionStartDate);
+		var ed = cleanDate(row.SessionEndDate);
+		if (ed && ed < today) return null; // Expired sessions stay in the feed.
+		var name = txt(row.CampName);
+		var session = txt(row.SessionName);
+		if (LIVE.exclude && LIVE.exclude.length && hasAny(name + ' ' + session, LIVE.exclude)) return null;
+		var before = known[id];
+		var hidePrice = (LIVE.hidePrices || []).indexOf(String(org)) !== -1;
+		var start = campTime(row.FullDayStartTime);
+		var fee = row.FullDayPrice !== null && row.FullDayPrice !== undefined && !isNaN(row.FullDayPrice) ? parseFloat(row.FullDayPrice) : null;
+		var ages = campAges(row.Ages);
+		var options = [];
+		Object.keys(LIVE.campOptions || {}).forEach(function (prefix) {
+			var s1 = row[prefix + 'StartTime'];
+			var e1 = row[prefix + 'EndTime'];
+			if (!s1 && !e1) return;
+			var p = row[prefix + 'Price'];
+			var s24 = campTime(s1);
+			options.push({ label: LIVE.campOptions[prefix], start: s24, end: campTime(e1, s24), price: hidePrice || p === null || p === undefined || isNaN(p) ? null : parseFloat(p) });
+		});
+		var open = row.HasOpenings === undefined || !!row.HasOpenings;
+		var reg = safeUrl(String(row.RegisterUrl || '').replace(/^http:\/\//i, 'https://')) ||
+			'https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgID=' + encodeURIComponent(org) + '&campid=' + (parseInt(row.CampId, 10) || 0);
+		return {
+			id: id,
+			org: String(org),
+			name: name,
+			desc: before ? before.desc : textToHtml(textOnly(row.SessionDescription || row.Description).replace(/^\s*address\s*:.*$/im, '')),
+			cat1: '',
+			cat2: '',
+			cat3: '',
+			session: session,
+			gender: '',
+			days: campDays(sd, ed),
+			start: start,
+			end: campTime(row.FullDayEndTime, start),
+			sd: sd,
+			ed: ed,
+			min: ages[0],
+			max: ages[1],
+			open: open ? null : 0,
+			wait: !open,
+			price: !hidePrice && fee > 0 ? (before && before.fee === fee ? before.price : formatPrice(fee, 'one time')) : '',
+			monthly: false,
+			fee: !hidePrice && fee > 0 ? fee : null,
+			billing: 'camp',
+			reg: reg,
+			ext: false,
+			reg_start: cleanDate(row.RegistrationStartDate),
+			instructors: [],
+			room: '',
+			type: 'camp',
+			loc: before ? before.loc : '',
+			source: 'camps',
+			camp_id: parseInt(row.CampId, 10) || 0,
+			options: options,
+			live: true
+		};
+	}
+
+	/**
+	 * Replace each organization's snapshot classes (and camps) with live ones.
+	 * A feed that fails or is slow leaves that org's snapshot entries in place.
+	 */
+	function withLive(payload) {
+		var orgs = Object.keys(payload.orgs || {});
+		if (!LIVE.enabled || !LIVE.feed || !orgs.length || orgs.length > (LIVE.maxOrgs || 10) || typeof fetch !== 'function') {
+			return payload;
+		}
+		var known = {};
+		(payload.classes || []).forEach(function (c) { known[c.id] = c; });
+		var sigs = payload.sigs || {};
+		var today = ymd(new Date());
+		var jobs = [];
+		orgs.forEach(function (org) {
+			jobs.push({ org: org, camps: false });
+			if (LIVE.campsFeed) jobs.push({ org: org, camps: true });
+		});
+		return Promise.all(jobs.map(function (job) {
+			return fetchFeed(job.org, job.camps).then(function (rows) { job.rows = rows; return job; }, function () { job.rows = null; return job; });
+		})).then(function (results) {
+			var liveClasses = {};
+			var liveCamps = {};
+			var fresh = [];
+			results.forEach(function (res) {
+				if (!res.rows) return;
+				(res.camps ? liveCamps : liveClasses)[res.org] = true;
+				res.rows.forEach(function (row) {
+					var c = res.camps ? normalizeCamp(row, res.org, known, today) : normalizeLive(row, res.org, known, sigs, today);
+					if (c) fresh.push(c);
+				});
+			});
+			payload.classes = (payload.classes || []).filter(function (c) {
+				var org = String(c.org);
+				return c.source === 'camps' ? !liveCamps[org] : !liveClasses[org];
+			}).concat(fresh);
+			payload.live = Object.keys(liveClasses);
+			return payload;
+		});
+	}
+
+
 	function prepare(payload) {
 		var catField = D.categoryField || 'cat1';
 		var locs = payload.locations || {};
+		var campLoc = payload.campLoc || {};
 		var classes = (payload.classes || []).map(function (c) {
+			if (c.source === 'camps' && !c.loc && campLoc[c.org]) c.loc = campLoc[c.org];
 			c.location = locs[c.loc] || null;
-			c.cat = c[catField] || '';
+			c.cat = c[catField] || (c.source === 'camps' ? T.camps : '');
 			c.full = c.open !== null && c.open !== undefined && c.open <= 0;
 			c.org_name = payload.orgs && payload.orgs[c.org] ? payload.orgs[c.org].name : '';
 			return c;
 		});
 		classes.sort(byDayTime);
-		return { classes: classes, locations: locs, orgs: payload.orgs || {}, generated: payload.generated };
+		return { classes: classes, locations: locs, orgs: payload.orgs || {}, generated: payload.generated, live: payload.live || [] };
 	}
 
 	function firstDay(c) {
@@ -310,8 +644,9 @@
 			if (cats.length && !containsAny(catText, cats)) return false;
 			if (excl.length && containsAny(c.name + ' ' + catText, excl)) return false;
 			if (kw.length && !containsAny(c.name.replace(/\s+/g, ' '), kw)) return false;
-			if (locq && !(c.location && (c.location.name + ' ' + c.location.address).toLowerCase().indexOf(locq) !== -1)) return false;
+			if (locq && !(c.location && (c.location.name + ' ' + c.location.address + ' ' + (c.location.code || '')).toLowerCase().indexOf(locq) !== -1)) return false;
 			if (cfg.type && c.type !== cfg.type) return false;
+			if (!cfg.type && D.campsWithClasses === false && c.type === 'camp') return false;
 			if (age && !ageOverlaps(c, age[0], age[1])) return false;
 			if (hideFull && c.full) return false;
 			return true;
@@ -358,6 +693,7 @@
 		if (f.loc && c.loc !== f.loc) return false;
 		if (f.locName && !(c.location && c.location.name.toLowerCase().indexOf(f.locName.toLowerCase()) !== -1)) return false;
 		if (f.type && c.type !== f.type) return false;
+		if (f.month && !sessionInMonth(c, f.month)) return false;
 		if (f.open && c.full) return false;
 		var lists = ['cat1', 'cat2', 'cat3'];
 		for (var i = 0; i < lists.length; i++) {
@@ -433,6 +769,13 @@
 			f.sort(function (a, b) { return a.label.localeCompare(b.label); });
 			return f;
 		},
+		month: function (classes) {
+			var today = ymd(new Date()).slice(0, 7);
+			return facet(classes, function (c) { return monthsOf(c).filter(function (m) { return m >= today; }); }).map(function (o) {
+				o.label = fmtDate(o.value + '-01', { month: 'long', year: 'numeric' });
+				return o;
+			});
+		},
 		type: function (classes) {
 			return facet(classes, function (c) { return c.type; }).map(function (o) {
 				o.label = o.value === 'camp' ? T.camps : T.classes;
@@ -441,7 +784,45 @@
 		}
 	};
 
-	var FILTER_KEYS = { category: 'cat', age: 'age', day: 'day', time: 'time', location: 'loc', type: 'type' };
+	var FILTER_KEYS = { category: 'cat', age: 'age', day: 'day', time: 'time', location: 'loc', type: 'type', month: 'month' };
+
+	/** "YYYY-MM" months a dated session touches (camps; capped at a year). */
+	function monthsOf(c) {
+		if (!c.sd) return [];
+		var out = [];
+		var d = parseDate(c.sd.slice(0, 7) + '-01');
+		var end = (c.ed || c.sd).slice(0, 7);
+		for (var i = 0; i < 12; i++) {
+			var m = ymd(d).slice(0, 7);
+			out.push(m);
+			if (m >= end) break;
+			d = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+		}
+		return out;
+	}
+
+	function sessionInMonth(c, month) {
+		return monthsOf(c).indexOf(month) !== -1;
+	}
+
+	/** A dated, multi-day camp session (shown by dates rather than weekdays). */
+	function isCampSession(c) {
+		if (c.type !== 'camp' || !c.sd) return false;
+		if (c.source === 'camps') return true;
+		// A "camp" set up as a class: only a short dated run counts, not a weekly class all year.
+		return !!c.ed && c.ed !== c.sd && (parseDate(c.ed) - parseDate(c.sd)) / 86400000 <= 14;
+	}
+
+	/** The session's own label, when it says more than the camp name. */
+	function sessionLabel(c) {
+		return c.session && c.session !== c.name ? c.session : '';
+	}
+
+	/** "Mon, Wed · 3:30–4:30 PM", or for camp sessions "Jun 21 – Jun 24 · 9:30–11:30 AM". */
+	function whenText(c) {
+		if (isCampSession(c)) return [fmtDateRange(c), fmtTimeRange(c)].filter(Boolean).join(' · ');
+		return [fmtDays(c.days), fmtTimeRange(c)].filter(Boolean).join(' · ');
+	}
 
 	/* ------------------------------------------------------- Registration */
 
@@ -492,7 +873,9 @@
 				el('button', { type: 'button', class: 'jrcc-dialog-close', 'aria-label': T.close, onclick: function () { demoDialog.close(); } }, icon('close')),
 				el('span', { class: 'jrcc-badge jrcc-badge-camp' }, T.demoBadge || 'Demo'),
 				el('h2', { id: 'jrcc-demo-title' }, T.demoTitle || 'This is a demo'),
-				el('p', null, T.demoText || 'On your website, this button opens your Jackrabbit registration form with these details already filled in:'),
+				el('p', null, /ParentPortal/i.test(url)
+					? (T.demoPortalText || 'On your website, this opens the Jackrabbit Parent Portal, where families log in to finish registering.')
+					: (T.demoText || 'On your website, this button opens your Jackrabbit registration form with these details already filled in:')),
 				students.length ? el('ul', { class: 'jrcc-demo-list' }, students.filter(Boolean).map(function (s2, i) {
 					return el('li', null, [
 						el('strong', null, s2.name || sprintf(T.child, i + 1)),
@@ -564,7 +947,7 @@
 
 	function card(c, opts) {
 		opts = opts || {};
-		var when = [fmtDays(c.days), fmtTimeRange(c)].filter(Boolean).join(' · ');
+		var when = whenText(c);
 		var foot = el('div', { class: 'jrcc-card-foot' }, [
 			D.showPrice && c.price ? el('span', { class: 'jrcc-price' }, c.price) : el('span'),
 			el('div', { class: 'jrcc-card-actions' }, [
@@ -576,17 +959,83 @@
 			class: 'jrcc-card' + (c.full ? ' is-full' : ''),
 			style: opts.color ? { '--jrcc-card-accent': opts.color } : null
 		}, [
-			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c), opts.tag ? el('span', { class: 'jrcc-badge jrcc-badge-tag', style: opts.color ? { background: opts.color } : null }, opts.tag) : null]),
+			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat && c.cat !== T.camps ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c), opts.tag ? el('span', { class: 'jrcc-badge jrcc-badge-tag', style: opts.color ? { background: opts.color } : null }, opts.tag) : null]),
 			el('h3', { class: 'jrcc-card-title' }, el('button', { type: 'button', class: 'jrcc-linklike', onclick: function () { openDetails(c); } }, c.name)),
 			el('ul', { class: 'jrcc-meta' }, [
 				metaRow('clock', when),
 				D.showAges ? metaRow('user', fmtAges(c)) : null,
 				D.showLocation && c.location ? metaRow('pin', c.location.name + (opts.distance ? ' · ' + opts.distance : '')) : null,
-				D.showDates ? metaRow('cal', fmtDateRange(c)) : null
+				D.showDates && !isCampSession(c) ? metaRow('cal', fmtDateRange(c)) : null
 			]),
 			foot
 		]);
 		return article;
+	}
+
+	function money(n) {
+		return '$' + (Math.round(n) === n ? n.toLocaleString() : n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+	}
+
+	/**
+	 * One card per camp, with its sessions (weeks) listed inside, each with
+	 * its own button. sessions: the camp's sessions, sorted by date.
+	 */
+	function campCard(sessions) {
+		var first = sessions[0];
+		var fees = sessions.map(function (s) { return s.fee; }).filter(function (f) { return f > 0; });
+		var minFee = fees.length ? Math.min.apply(null, fees) : 0;
+		var allSame = fees.length === sessions.length && fees.every(function (f) { return f === minFee; });
+		var priceText = !D.showPrice || !minFee ? '' : (allSame ? first.price : sprintf(T.fromPrice, money(minFee)));
+		var last = sessions.reduce(function (a, s) { return (s.ed || s.sd) > (a.ed || a.sd) ? s : a; }, first);
+		var span = sessions.length > 1 ? fmtDateRange({ sd: first.sd, ed: last.ed || last.sd }) : '';
+		var count = sessions.length === 1 ? T.sessionCount1 : sprintf(T.sessionCount, sessions.length);
+		return el('article', { class: 'jrcc-card jrcc-camp-card' + (sessions.every(function (s) { return s.full; }) ? ' is-full' : '') }, [
+			el('div', { class: 'jrcc-card-top' }, [typeBadge(first), first.cat && first.cat !== T.camps ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, first.cat) : null]),
+			el('h3', { class: 'jrcc-card-title' }, el('button', { type: 'button', class: 'jrcc-linklike', onclick: function () { openDetails(first); } }, first.name)),
+			el('ul', { class: 'jrcc-meta' }, [
+				D.showAges ? metaRow('user', fmtAges(first)) : null,
+				D.showLocation && first.location ? metaRow('pin', first.location.name) : null,
+				metaRow('cal', [span, sessions.length > 1 ? count : ''].filter(Boolean).join(' · '))
+			]),
+			el('ul', { class: 'jrcc-sessions' }, sessions.map(function (s) {
+				return el('li', { class: 'jrcc-session' + (s.full ? ' is-full' : '') }, [
+					el('span', { class: 'jrcc-session-main' }, [
+						el('button', { type: 'button', class: 'jrcc-linklike jrcc-strong', onclick: function () { openDetails(s); } }, sessionLabel(s) || fmtDateRange(s)),
+						el('span', { class: 'jrcc-muted' }, [sessionLabel(s) ? fmtDateRange(s) : '', fmtTimeRange(s)].filter(Boolean).join(' · ')),
+						allSame || !D.showPrice || !s.price ? null : el('span', { class: 'jrcc-muted' }, s.price)
+					]),
+					openingsBadge(s),
+					action(s, 'jrcc-btn-sm')
+				]);
+			})),
+			priceText ? el('div', { class: 'jrcc-card-foot' }, [el('span', { class: 'jrcc-price' }, priceText), el('button', { type: 'button', class: 'jrcc-btn jrcc-btn-ghost jrcc-btn-sm', onclick: function () { openDetails(first); } }, L.details)]) : null
+		]);
+	}
+
+	/**
+	 * Cards for a list that may contain camp sessions: sessions of the same
+	 * camp collapse into one camp card at the position of its first session.
+	 * Returns [{ key, sessions|class }].
+	 */
+	function groupCamps(list) {
+		var out = [];
+		var byCamp = {};
+		list.forEach(function (c) {
+			if (c.source === 'camps' && c.camp_id) {
+				var k = c.org + ':' + c.camp_id;
+				if (!byCamp[k]) {
+					byCamp[k] = { key: k, sessions: [] };
+					out.push(byCamp[k]);
+				}
+				byCamp[k].sessions.push(c);
+			} else {
+				out.push({ key: String(c.id), item: c });
+			}
+		});
+		out.forEach(function (g) {
+			if (g.sessions) g.sessions.sort(function (a, b) { return a.sd.localeCompare(b.sd) || (a.start || '').localeCompare(b.start || ''); });
+		});
+		return out;
 	}
 
 	/* -------------------------------------------------------- Details dialog */
@@ -612,9 +1061,14 @@
 		var dt = function (label, value) {
 			if (value) rows.push(el('dt', null, label), el('dd', null, value));
 		};
-		dt(T.when, [fmtDays(c.days, true), fmtTimeRange(c)].filter(Boolean).join(' · '));
-		if (D.showDates) dt(T.dates, fmtDateRange(c));
-		if (D.showAges) dt(T.age, fmtAges(c).replace(T.ages + ' ', ''));
+		if (isCampSession(c)) {
+			dt(T.dates, [fmtDateRange(c), sessionLabel(c)].filter(Boolean).join(' · '));
+			dt(T.when, [fmtDays(c.days), fmtTimeRange(c)].filter(Boolean).join(' · '));
+		} else {
+			dt(T.when, [fmtDays(c.days, true), fmtTimeRange(c)].filter(Boolean).join(' · '));
+			if (D.showDates) dt(T.dates, fmtDateRange(c));
+		}
+		if (D.showAges) dt(T.age, fmtAges(c).replace(T.ages + ' ', '').replace(T.age + ' ', ''));
 		if (D.showLocation && loc) {
 			var mapUrl = loc.lat ? 'https://www.google.com/maps/dir/?api=1&destination=' + loc.lat + ',' + loc.lng : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(loc.address || loc.name);
 			rows.push(el('dt', null, T.location), el('dd', null, [
@@ -626,6 +1080,12 @@
 		if (D.showInstructors && c.instructors && c.instructors.length) dt(T.instructors, c.instructors.join(', '));
 		if (D.showOpenings && c.open !== null && c.open !== undefined) dt(T.openings, c.full ? L.full : String(c.open));
 		if (D.showPrice && c.price) dt(T.tuition, c.price);
+		if (c.options && c.options.length > 1) {
+			rows.push(el('dt', null, T.options), el('dd', null, el('ul', { class: 'jrcc-options-list' }, c.options.map(function (o) {
+				var price = !D.showPrice || o.price === null || o.price === undefined ? '' : (o.price === 0 ? T.included : money(o.price));
+				return el('li', null, [el('strong', null, o.label), ' ', [o.start ? fmtTimeRange({ start: o.start, end: o.end }) : '', price].filter(Boolean).join(' · ')]);
+			}))));
+		}
 
 		var today = ymd(new Date());
 		var share = el('button', {
@@ -642,12 +1102,13 @@
 
 		append(dialog, el('div', { class: 'jrcc-dialog-inner' }, [
 			el('button', { type: 'button', class: 'jrcc-dialog-close', 'aria-label': T.close, onclick: function () { dialog.close(); } }, icon('close')),
-			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c)]),
+			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat && c.cat !== T.camps ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c)]),
 			el('h2', { id: 'jrcc-dialog-title' }, c.name),
 			c.org_name ? el('p', { class: 'jrcc-muted' }, c.org_name) : null,
 			el('dl', { class: 'jrcc-details' }, rows),
 			D.showDescription && c.desc ? el('div', { class: 'jrcc-desc', html: c.desc }) : null,
 			c.ext ? el('p', { class: 'jrcc-muted' }, T.externalReg) : null,
+			c.source === 'camps' ? el('p', { class: 'jrcc-muted' }, T.portalLogin) : null,
 			c.reg_start && c.reg_start > today ? el('p', { class: 'jrcc-muted' }, sprintf(T.regOpens, fmtDate(c.reg_start))) : null,
 			el('div', { class: 'jrcc-dialog-actions' }, JRCC.plan && JRCC.plan.enabled ? [
 				share,
@@ -691,6 +1152,7 @@
 		var selects = {};
 		var labels = {
 			category: L.category || T.all,
+			month: T.month,
 			age: T.age,
 			day: T.day,
 			time: T.when,
@@ -798,7 +1260,7 @@
 	var hashHandled = false;
 	function openFromHash(classes) {
 		if (hashHandled) return;
-		var m = location.hash.match(/^#jrcc-class-(\d+)/);
+		var m = location.hash.match(/^#jrcc-class-((?:camp-)?\d+)/);
 		if (!m) return;
 		var c = classes.find(function (x) { return String(x.id) === m[1]; });
 		if (c) {
@@ -852,6 +1314,12 @@
 		ageOverlaps: ageOverlaps,
 		timeOfDay: timeOfDay,
 		card: card,
+		campCard: campCard,
+		groupCamps: groupCamps,
+		isCampSession: isCampSession,
+		sessionLabel: sessionLabel,
+		whenText: whenText,
+		money: money,
 		regLink: regLink,
 		action: action,
 		openingsBadge: openingsBadge,

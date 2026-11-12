@@ -145,50 +145,62 @@
 		});
 	});
 
-	// Week-long holiday camps a few weeks out.
+	// Camps, shaped like Jackrabbit's Camps module: one entry per weekly session,
+	// sessions of the same camp share camp_id, with half-day and care options.
+	var sessionId = 90001;
 	[
-		{ name: 'Holiday Break Camp', weeks: 3, loc: 'hh-cary' },
-		{ name: 'Ninja Adventure Camp', weeks: 5, loc: 'hh-north' },
-		{ name: 'Splash & Play Camp', weeks: 7, loc: 'hh-wake' },
-		{ name: 'Gymnastics Stars Camp', weeks: 9, loc: 'hh-durham' }
+		{ id: 5101, name: 'Holiday Break Camp', weeks: 3, count: 2, loc: 'hh-cary', min: 60, max: 144, price: 295, themes: ['Gingerbread & Games', 'Snow Day Science'] },
+		{ id: 5102, name: 'Ninja Adventure Camp', weeks: 6, count: 3, loc: 'hh-north', min: 72, max: 155, price: 315, themes: ['Obstacle Course Week', 'Parkour Basics', 'Ninja Warrior Finals'] },
+		{ id: 5103, name: 'Splash & Play Camp', weeks: 9, count: 2, loc: 'hh-wake', min: 48, max: 107, price: 275, themes: ['Ocean Explorers', 'Pool Party Week'] },
+		{ id: 5104, name: 'Gymnastics Stars Camp', weeks: 12, count: 2, loc: 'hh-durham', min: 60, max: 131, price: 295, themes: ['', ''] }
 	].forEach(function (camp) {
-		var sd = new Date(monday);
-		sd.setDate(monday.getDate() + camp.weeks * 7);
-		var ed = new Date(sd);
-		ed.setDate(sd.getDate() + 4);
-		var open = openings() + 4;
-		var id = nextId++;
-		classes.push({
-			id: id,
-			org: ORG,
-			name: camp.name,
-			desc: '<p>A full week of games, crafts, skill stations and themed days. Bring a lunch and a water bottle; snacks are provided.</p>',
-			cat1: 'Camp',
-			cat2: 'Kids (6–9)',
-			cat3: 'Beginner',
-			session: 'Camps',
-			gender: '',
-			days: [1, 2, 3, 4, 5],
-			start: '09:00',
-			end: '15:00',
-			sd: ymd(sd),
-			ed: ymd(ed),
-			min: 60,
-			max: 144,
-			open: open,
-			wait: false,
-			price: '$295/session',
-			monthly: false,
-			fee: 295,
-			billing: 'by session dates',
-			reg: 'https://app.jackrabbitclass.com/regv2.asp?id=' + ORG + '&preLoadClassID=' + id,
-			ext: false,
-			reg_start: '',
-			instructors: [pick(COACHES)],
-			room: '',
-			type: 'camp',
-			loc: camp.loc
-		});
+		for (var w = 0; w < camp.count; w++) {
+			var sd = new Date(monday);
+			sd.setDate(monday.getDate() + (camp.weeks + w) * 7);
+			var ed = new Date(sd);
+			ed.setDate(sd.getDate() + 4);
+			var full = rand() < 0.2;
+			var id = 'camp-' + sessionId++;
+			classes.push({
+				id: id,
+				org: ORG,
+				name: camp.name,
+				desc: '<p>A full week of games, crafts, skill stations and themed days. Bring a lunch and a water bottle; snacks are provided.</p>',
+				cat1: '',
+				cat2: '',
+				cat3: '',
+				session: camp.themes[w] ? 'Week ' + (w + 1) + ': ' + camp.themes[w] : '',
+				gender: '',
+				days: [1, 2, 3, 4, 5],
+				start: '09:00',
+				end: '15:00',
+				sd: ymd(sd),
+				ed: ymd(ed),
+				min: camp.min,
+				max: camp.max,
+				open: full ? 0 : null,
+				wait: full,
+				price: '$' + camp.price,
+				monthly: false,
+				fee: camp.price,
+				billing: 'camp',
+				reg: 'https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgID=' + ORG + '&campid=' + camp.id,
+				ext: false,
+				reg_start: '',
+				instructors: [],
+				room: '',
+				type: 'camp',
+				loc: camp.loc,
+				source: 'camps',
+				camp_id: camp.id,
+				options: [
+					{ label: 'Full day', start: '09:00', end: '15:00', price: camp.price },
+					{ label: 'Half day', start: '09:00', end: '12:00', price: Math.round(camp.price * 0.6) },
+					{ label: 'Early drop-off', start: '08:00', end: '09:00', price: 0 },
+					{ label: 'Late pickup', start: '15:00', end: '17:30', price: 45 }
+				]
+			});
+		}
 	});
 
 	window.GHC_DEMO_PAYLOAD = {
