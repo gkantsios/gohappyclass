@@ -37,14 +37,16 @@ window.JRCC_CONFIG = {
   },
   "weekendMessage": "Saturday afternoons are for birthday parties. {Book a party}",
   "weekendLink": "#",
-  "analytics": false
+  "analytics": false,
+  "campsWithClasses": true
  },
  "cart": {
   "enabled": true,
   "maxStudents": 5,
   "portal": true,
   "regUrl": "https://app.jackrabbitclass.com/regv2.asp",
-  "portalUrl": "https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login"
+  "portalUrl": "https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login",
+  "position": "right"
  },
  "finder": {
   "questions": {
@@ -52,7 +54,8 @@ window.JRCC_CONFIG = {
    "category": "What are they interested in?",
    "day": "Which day works best?",
    "time": "What time of day?",
-   "location": "Which location is most convenient?"
+   "location": "Which location is most convenient?",
+   "type": "Are you looking for classes or camps?"
   },
   "family": [
    {
@@ -305,6 +308,7 @@ window.JRCC_CONFIG = {
   "sortAge": "Age",
   "week": "Week",
   "month": "Month",
+  "campCount": "%s camps",
   "list": "List",
   "today": "Today",
   "prev": "Previous",
@@ -367,6 +371,19 @@ window.JRCC_CONFIG = {
   "clashSame": "Overlaps with %s",
   "clashOther": "Same time as %1$s’s class at %2$s",
   "registerOne": "Register for this class only",
+  "weeks": "Weeks",
+  "sessionCount": "%s sessions",
+  "sessionCount1": "1 session",
+  "fromPrice": "From %s",
+  "included": "Included",
+  "options": "Options",
+  "campsThisWeek": "Camps this week",
+  "campDays": "%s days",
+  "campsPortal": "Camps register in the Parent Portal",
+  "campsPortalNote": "Camp registration needs a Parent Portal login. New families can create an account there.",
+  "campRegister": "Register for %s",
+  "portalLogin": "Opens the Parent Portal (login required).",
+  "campsTab": "Camps",
   "familyTab": "Family planner",
   "demoBadge": "Demo",
   "demoTitle": "This is a demo",
@@ -376,7 +393,8 @@ window.JRCC_CONFIG = {
   "mapTab": "Map",
   "calendarTab": "Calendar",
   "listTab": "All classes",
-  "wizardEmpty": "The class finder has no questions yet."
+  "wizardEmpty": "The class finder has no questions yet.",
+  "demoPortalText": "On your website, this opens the Jackrabbit Parent Portal, where families log in to finish registering."
  }
 };
 // Demo data and place search instead of a WordPress backend.

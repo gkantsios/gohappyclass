@@ -7,9 +7,9 @@
 	var J = window.JRCC;
 	var el = J.el;
 	var T = J.config.i18n;
-	var LABELS = { finder: T.findTab, family: T.familyTab, map: T.mapTab, calendar: T.calendarTab, classes: T.listTab };
+	var LABELS = { finder: T.findTab, family: T.familyTab, map: T.mapTab, calendar: T.calendarTab, classes: T.listTab, camps: T.campsTab };
 	// Tabs that are a mode of another widget.
-	var WIDGET = { family: 'finder' };
+	var WIDGET = { family: 'finder', camps: 'classes' };
 	var SCOPE = ['org', 'category', 'cat1', 'cat2', 'cat3', 'categories', 'exclude', 'keywords', 'location', 'type', 'age', 'hide_full'];
 
 	J.widgets.app = function (root, cfg) {
@@ -59,7 +59,8 @@
 				panels[t].dataset.mounted = '1';
 				var child = Object.assign({}, (cfg.children || {})[WIDGET[t] || t] || {}, { widget: WIDGET[t] || t });
 				if (t === 'family') child.mode = 'family';
-				SCOPE.forEach(function (k) { child[k] = cfg[k]; });
+				SCOPE.forEach(function (k) { if (cfg[k] !== undefined && cfg[k] !== '') child[k] = cfg[k]; });
+				if (t === 'camps') Object.assign(child, { type: 'camp', sort: 'date', filters: 'search,month,age,location' });
 				J.mount(panels[t], child);
 			}
 		}

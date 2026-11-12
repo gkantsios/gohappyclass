@@ -33,10 +33,14 @@
 
 	/* ------------------------------------------------------------ Guided */
 
-	var STEP_KEYS = { age: 'age', category: 'cat', day: 'day', time: 'time', location: 'loc' };
+	var STEP_KEYS = { type: 'type', age: 'age', category: 'cat', day: 'day', time: 'time', location: 'loc' };
 
 	function guided(root, cfg, all) {
 		var steps = String(cfg.steps || 'age,category,day,location').split(',').map(function (s) { return s.trim(); }).filter(function (s) { return STEP_KEYS[s]; });
+		// With both classes and camps, ask which first so results aren't a mix.
+		var types = {};
+		all.forEach(function (c) { types[c.type] = true; });
+		if (types.camp && types['class'] && steps.indexOf('type') === -1) steps.unshift('type');
 		var answers = {}; // step → { value, label }
 		var history = []; // steps actually shown, for Back
 		var panel = el('div', { class: 'jrcc-finder-panel', 'aria-live': 'polite' });
@@ -234,6 +238,8 @@
 
 	function family(root, cfg, all) {
 		var P = J.plan;
+		// A recurring weekly schedule: week-long camps don't belong in it.
+		all = all.filter(function (c) { return c.type !== 'camp'; });
 		var fields = (F.family || []).filter(function (f) { return f && f.field; });
 		var onlyOpen = !!D.hideFull;
 		if (!P.children().length) P.addChild('');

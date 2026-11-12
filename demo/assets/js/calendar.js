@@ -147,10 +147,36 @@
 			]);
 		}
 
+		/** Week-long (multi-day) camp sessions: one bar each, not a block on every day. */
+		function multiDay(c) {
+			return J.isCampSession(c) && !!c.ed && c.ed !== c.sd;
+		}
+
+		function campStrip(camps, from, to) {
+			if (!camps.length) return null;
+			return el('div', { class: 'jrcc-camp-strip' }, [
+				el('h4', null, T.campsThisWeek),
+				el('div', { class: 'jrcc-camp-strip-items' }, camps.map(function (c) {
+					return el('button', { type: 'button', class: 'jrcc-event jrcc-camp-bar' + (c.full ? ' is-full' : ''), style: { '--jrcc-event': colorOf(c) }, onclick: function () { J.openDetails(c); } }, [
+						el('span', { class: 'jrcc-event-time' }, [J.fmtDateRange(c), J.fmtTimeRange(c)].filter(Boolean).join(' · ')),
+						el('span', { class: 'jrcc-event-name' }, J.sessionLabel(c) ? c.name + ' – ' + J.sessionLabel(c) : c.name),
+						[J.fmtAges(c), D.showLocation && c.location ? c.location.name : ''].filter(Boolean).length ? el('span', { class: 'jrcc-event-meta' }, [J.fmtAges(c), D.showLocation && c.location ? c.location.name : ''].filter(Boolean).join(' · ')) : null,
+						J.openingsBadge(c)
+					]);
+				}))
+			]);
+		}
+
 		function renderWeek(list) {
 			var start = weekStartOf(anchor);
 			var days = visibleDays(start);
 			title.textContent = J.fmtDate(J.ymd(days[0]), { month: 'short', day: 'numeric' }) + ' – ' + J.fmtDate(J.ymd(days[days.length - 1]), { month: 'short', day: 'numeric', year: 'numeric' });
+			var from = J.ymd(start);
+			var to = J.ymd(addDays(start, 6));
+			var camps = list.filter(function (c) { return multiDay(c) && c.sd <= to && c.ed >= from; });
+			list = list.filter(function (c) { return !multiDay(c); });
+			var strip = campStrip(camps, from, to);
+			if (strip) body.appendChild(strip);
 			var grid = el('div', { class: 'jrcc-week', style: { '--jrcc-cols': days.length } });
 			days.forEach(function (d) {
 				var items = list.filter(function (c) { return occursOn(c, d); });
@@ -183,7 +209,12 @@
 				if (w > 3 && weekStart.getMonth() !== first.getMonth()) break;
 				visibleDays(weekStart).forEach(function (d) {
 					var inMonth = d.getMonth() === first.getMonth();
-					var items = inMonth ? list.filter(function (c) { return occursOn(c, d); }) : [];
+					var ds = J.ymd(d);
+					// Multi-day camps appear once: on their first day in this month.
+					var items = inMonth ? list.filter(function (c) {
+						if (multiDay(c)) return occursOn(c, d) && (c.sd === ds || (d.getDate() === 1 && c.sd < ds) || (c.sd < J.ymd(first) && ds === J.ymd(first)));
+						return occursOn(c, d);
+					}) : [];
 					var cell = el('div', { class: 'jrcc-month-cell' + (inMonth ? '' : ' is-out') + (J.ymd(d) === J.ymd(today) ? ' is-today' : '') }, [
 						el('span', { class: 'jrcc-month-date' }, String(d.getDate()))
 					]);
@@ -205,7 +236,7 @@
 			if (!showWeekends) order = order.filter(function (d) { return d <= 5; });
 			var wrap = el('div', { class: 'jrcc-agenda' });
 			order.forEach(function (d) {
-				var items = list.filter(function (c) { return (c.days || []).indexOf(d) !== -1; });
+				var items = list.filter(function (c) { return !J.isCampSession(c) && (c.days || []).indexOf(d) !== -1; });
 				if (!items.length) return;
 				wrap.appendChild(el('section', { class: 'jrcc-agenda-day' }, [
 					el('h4', null, T.days[d - 1]),
@@ -222,7 +253,21 @@
 					}))
 				]));
 			});
-			var undated = list.filter(function (c) { return !c.days || !c.days.length; });
+			var campRows = list.filter(J.isCampSession).sort(function (a, b) { return a.sd.localeCompare(b.sd) || (a.start || '').localeCompare(b.start || ''); });
+			if (campRows.length) {
+				wrap.appendChild(el('section', { class: 'jrcc-agenda-day' }, [el('h4', null, T.camps), el('ul', null, campRows.map(function (c) {
+					return el('li', { class: 'jrcc-agenda-row' + (c.full ? ' is-full' : ''), style: { '--jrcc-event': colorOf(c) } }, [
+						el('span', { class: 'jrcc-agenda-time' }, J.fmtDateRange(c)),
+						el('span', { class: 'jrcc-agenda-main' }, [
+							el('button', { type: 'button', class: 'jrcc-linklike jrcc-strong', onclick: function () { J.openDetails(c); } }, J.sessionLabel(c) ? c.name + ' – ' + J.sessionLabel(c) : c.name),
+							el('span', { class: 'jrcc-muted' }, [J.fmtTimeRange(c), J.fmtAges(c), c.location ? c.location.name : ''].filter(Boolean).join(' · '))
+						]),
+						J.openingsBadge(c),
+						J.action(c, 'jrcc-btn-sm')
+					]);
+				}))]));
+			}
+			var undated = list.filter(function (c) { return (!c.days || !c.days.length) && !J.isCampSession(c); });
 			if (undated.length) {
 				wrap.appendChild(el('section', { class: 'jrcc-agenda-day' }, [el('h4', null, T.dates), el('ul', null, undated.map(function (c) {
 					return el('li', { class: 'jrcc-agenda-row', style: { '--jrcc-event': colorOf(c) } }, [
