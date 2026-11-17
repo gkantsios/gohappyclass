@@ -180,7 +180,7 @@
 		var orgs = {};
 		state.children.forEach(function (ch, idx) {
 			itemsFor(ch.id).forEach(function (it) {
-				if (it.c.source === 'camps') return;
+				if (it.c.source === 'camps' || it.c.source === 'events') return;
 				var o = it.c.org;
 				orgs[o] = orgs[o] || [];
 				var entry = orgs[o].find(function (e) { return e.child === ch.id; });
@@ -231,6 +231,23 @@
 				out[k] = out[k] || { org: it.c.org, camp: it.c.camp_id, name: it.c.name, url: it.c.reg, names: [] };
 				var label = childLabel(ch.id);
 				if (out[k].names.indexOf(label) === -1) out[k].names.push(label);
+			});
+		});
+		return Object.keys(out).map(function (k) { return out[k]; });
+	}
+
+	/**
+	 * Events register one at a time on their own Jackrabbit form.
+	 * Returns [{ org, id, name, date, url, names }].
+	 */
+	function eventLinks() {
+		var out = {};
+		state.children.forEach(function (ch) {
+			itemsFor(ch.id).forEach(function (it) {
+				if (it.c.source !== 'events') return;
+				out[it.id] = out[it.id] || { org: it.c.org, id: it.id, name: it.c.name, date: J.whenText(it.c), url: it.c.reg, names: [] };
+				var label = childLabel(ch.id);
+				if (out[it.id].names.indexOf(label) === -1) out[it.id].names.push(label);
 			});
 		});
 		return Object.keys(out).map(function (k) { return out[k]; });
@@ -468,10 +485,10 @@
 					return el('li', { class: 'jrcc-plan-item' + (warn.length ? ' has-clash' : '') }, [
 						el('div', { class: 'jrcc-plan-item-main' }, [
 							el('strong', null, c.name),
-							c.source === 'camps'
-								? el('span', { class: 'jrcc-muted' }, [J.sessionLabel(c), J.fmtDateRange(c), J.fmtTimeRange(c), c.locName].filter(Boolean).join(' · '))
+							c.source === 'camps' || c.source === 'events'
+								? el('span', { class: 'jrcc-muted' }, [J.sessionLabel(c), c.source === 'events' ? J.whenText(c) : J.fmtDateRange(c) + (c.start ? ' · ' + J.fmtTimeRange(c) : ''), c.locName].filter(Boolean).join(' · '))
 								: el('span', { class: 'jrcc-muted' }, [J.fmtDays(c.days), J.fmtTimeRange(c), c.locName].filter(Boolean).join(' · ')),
-							D.showDates && c.sd && c.source !== 'camps' ? el('span', { class: 'jrcc-muted' }, J.fmtDateRange(c)) : null,
+							D.showDates && c.sd && c.source !== 'camps' && c.source !== 'events' ? el('span', { class: 'jrcc-muted' }, J.fmtDateRange(c)) : null,
 							warn.map(function (w) { return el('span', { class: 'jrcc-plan-warn' }, '⚠ ' + w); })
 						]),
 						el('div', { class: 'jrcc-plan-item-side' }, [
@@ -527,6 +544,23 @@
 					}, J.sprintf(T.campRegister, cl.name) + (cl.names.length ? ' (' + cl.names.join(', ') + ')' : '')));
 				});
 				foot.appendChild(campBox);
+			}
+			var events = eventLinks();
+			if (events.length) {
+				var eventBox = el('div', { class: 'jrcc-plan-camps' }, [
+					el('strong', null, T.eventsOwnForm),
+					el('p', { class: 'jrcc-muted jrcc-small' }, T.eventsOwnFormNote)
+				]);
+				events.forEach(function (ev) {
+					eventBox.appendChild(el('a', {
+						class: 'jrcc-btn ' + (links.length || camps.length ? 'jrcc-btn-ghost' : 'jrcc-btn-primary') + ' jrcc-btn-block',
+						href: ev.url,
+						target: D.newTab ? '_blank' : null,
+						rel: D.newTab ? 'noopener' : null,
+						onclick: function (e) { track('jackrabbit_register_event', null, { org_id: ev.org, event_id: String(ev.id), children: ev.names.length }); J.demoGate(e, ev.url); }
+					}, J.sprintf(T.eventRegister, ev.name, ev.date) + (ev.names.length > 1 ? ' – ' + ev.names.join(', ') : '')));
+				});
+				foot.appendChild(eventBox);
 			}
 			if (CART.portal && links.length) {
 				Object.keys(portalOrgs).forEach(function (org) {

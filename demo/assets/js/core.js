@@ -558,6 +558,7 @@
 			});
 			payload.classes = (payload.classes || []).filter(function (c) {
 				var org = String(c.org);
+				if (c.source === 'events') return true; // Events are read by WordPress, never live.
 				return c.source === 'camps' ? !liveCamps[org] : !liveClasses[org];
 			}).concat(fresh);
 			payload.live = Object.keys(liveClasses);
@@ -573,7 +574,7 @@
 		var classes = (payload.classes || []).map(function (c) {
 			if (c.source === 'camps' && !c.loc && campLoc[c.org]) c.loc = campLoc[c.org];
 			c.location = locs[c.loc] || null;
-			c.cat = c[catField] || (c.source === 'camps' ? T.camps : '');
+			c.cat = c[catField] || (c.source === 'camps' ? T.camps : c.source === 'events' ? T.events : '');
 			c.full = c.open !== null && c.open !== undefined && c.open <= 0;
 			c.org_name = payload.orgs && payload.orgs[c.org] ? payload.orgs[c.org].name : '';
 			return c;
@@ -647,6 +648,7 @@
 			if (locq && !(c.location && (c.location.name + ' ' + c.location.address + ' ' + (c.location.code || '')).toLowerCase().indexOf(locq) !== -1)) return false;
 			if (cfg.type && c.type !== cfg.type) return false;
 			if (!cfg.type && D.campsWithClasses === false && c.type === 'camp') return false;
+			if (!cfg.type && D.eventsWithClasses === false && c.type === 'event') return false;
 			if (age && !ageOverlaps(c, age[0], age[1])) return false;
 			if (hideFull && c.full) return false;
 			return true;
@@ -778,7 +780,7 @@
 		},
 		type: function (classes) {
 			return facet(classes, function (c) { return c.type; }).map(function (o) {
-				o.label = o.value === 'camp' ? T.camps : T.classes;
+				o.label = o.value === 'camp' ? T.camps : o.value === 'event' ? T.events : T.classes;
 				return o;
 			});
 		}
@@ -819,7 +821,13 @@
 	}
 
 	/** "Mon, Wed · 3:30–4:30 PM", or for camp sessions "Jun 21 – Jun 24 · 9:30–11:30 AM". */
+	/** One-off or dated items (camp sessions, events) are described by date, not weekday. */
+	function isDated(c) {
+		return isCampSession(c) || c.type === 'event';
+	}
+
 	function whenText(c) {
+		if (c.type === 'event') return [fmtDate(c.sd, { weekday: 'short', month: 'short', day: 'numeric' }), fmtTimeRange(c)].filter(Boolean).join(' · ');
 		if (isCampSession(c)) return [fmtDateRange(c), fmtTimeRange(c)].filter(Boolean).join(' · ');
 		return [fmtDays(c.days), fmtTimeRange(c)].filter(Boolean).join(' · ');
 	}
@@ -935,7 +943,7 @@
 	}
 
 	function typeBadge(c) {
-		return el('span', { class: 'jrcc-badge jrcc-badge-' + c.type }, c.type === 'camp' ? L.camp : L.class);
+		return el('span', { class: 'jrcc-badge jrcc-badge-' + c.type }, c.type === 'camp' ? L.camp : c.type === 'event' ? (L.event || 'Event') : L.class);
 	}
 
 	/* --------------------------------------------------------------- Cards */
@@ -959,13 +967,13 @@
 			class: 'jrcc-card' + (c.full ? ' is-full' : ''),
 			style: opts.color ? { '--jrcc-card-accent': opts.color } : null
 		}, [
-			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat && c.cat !== T.camps ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c), opts.tag ? el('span', { class: 'jrcc-badge jrcc-badge-tag', style: opts.color ? { background: opts.color } : null }, opts.tag) : null]),
+			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat && c.cat !== T.camps && c.cat !== T.events ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c), opts.tag ? el('span', { class: 'jrcc-badge jrcc-badge-tag', style: opts.color ? { background: opts.color } : null }, opts.tag) : null]),
 			el('h3', { class: 'jrcc-card-title' }, el('button', { type: 'button', class: 'jrcc-linklike', onclick: function () { openDetails(c); } }, c.name)),
 			el('ul', { class: 'jrcc-meta' }, [
 				metaRow('clock', when),
 				D.showAges ? metaRow('user', fmtAges(c)) : null,
 				D.showLocation && c.location ? metaRow('pin', c.location.name + (opts.distance ? ' · ' + opts.distance : '')) : null,
-				D.showDates && !isCampSession(c) ? metaRow('cal', fmtDateRange(c)) : null
+				D.showDates && !isDated(c) ? metaRow('cal', fmtDateRange(c)) : null
 			]),
 			foot
 		]);
@@ -1061,7 +1069,11 @@
 		var dt = function (label, value) {
 			if (value) rows.push(el('dt', null, label), el('dd', null, value));
 		};
-		if (isCampSession(c)) {
+		if (c.type === 'event') {
+			dt(T.when, [fmtDate(c.sd, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + (c.ed && c.ed !== c.sd ? ' – ' + fmtDate(c.ed, { month: 'long', day: 'numeric' }) : ''), fmtTimeRange(c)].filter(Boolean).join(' · '));
+			if (sessionLabel(c)) dt(T.type, sessionLabel(c));
+			if (c.room) dt(T.room, c.room);
+		} else if (isCampSession(c)) {
 			dt(T.dates, [fmtDateRange(c), sessionLabel(c)].filter(Boolean).join(' · '));
 			dt(T.when, [fmtDays(c.days), fmtTimeRange(c)].filter(Boolean).join(' · '));
 		} else {
@@ -1102,7 +1114,7 @@
 
 		append(dialog, el('div', { class: 'jrcc-dialog-inner' }, [
 			el('button', { type: 'button', class: 'jrcc-dialog-close', 'aria-label': T.close, onclick: function () { dialog.close(); } }, icon('close')),
-			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat && c.cat !== T.camps ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c)]),
+			el('div', { class: 'jrcc-card-top' }, [typeBadge(c), c.cat && c.cat !== T.camps && c.cat !== T.events ? el('span', { class: 'jrcc-badge jrcc-badge-cat' }, c.cat) : null, openingsBadge(c)]),
 			el('h2', { id: 'jrcc-dialog-title' }, c.name),
 			c.org_name ? el('p', { class: 'jrcc-muted' }, c.org_name) : null,
 			el('dl', { class: 'jrcc-details' }, rows),
@@ -1112,7 +1124,7 @@
 			c.reg_start && c.reg_start > today ? el('p', { class: 'jrcc-muted' }, sprintf(T.regOpens, fmtDate(c.reg_start))) : null,
 			el('div', { class: 'jrcc-dialog-actions' }, JRCC.plan && JRCC.plan.enabled ? [
 				share,
-				c.reg ? el('a', { class: 'jrcc-btn jrcc-btn-ghost', href: c.reg, target: D.newTab ? '_blank' : null, rel: D.newTab ? 'noopener' : null, onclick: function (e) { track(c); demoGate(e, c.reg); } }, T.registerOne) : null,
+				c.reg ? el('a', { class: 'jrcc-btn jrcc-btn-ghost', href: c.reg, target: D.newTab ? '_blank' : null, rel: D.newTab ? 'noopener' : null, onclick: function (e) { track(c); demoGate(e, c.reg); } }, c.type === 'event' ? T.registerEvent : T.registerOne) : null,
 				JRCC.plan.button(c, { className: 'jrcc-btn-lg' })
 			] : [share, regLink(c, 'jrcc-btn-lg')])
 		]));
@@ -1317,6 +1329,7 @@
 		campCard: campCard,
 		groupCamps: groupCamps,
 		isCampSession: isCampSession,
+		isDated: isDated,
 		sessionLabel: sessionLabel,
 		whenText: whenText,
 		money: money,
