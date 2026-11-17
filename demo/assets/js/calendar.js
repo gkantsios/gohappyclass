@@ -236,7 +236,7 @@
 			if (!showWeekends) order = order.filter(function (d) { return d <= 5; });
 			var wrap = el('div', { class: 'jrcc-agenda' });
 			order.forEach(function (d) {
-				var items = list.filter(function (c) { return !J.isCampSession(c) && (c.days || []).indexOf(d) !== -1; });
+				var items = list.filter(function (c) { return !J.isDated(c) && (c.days || []).indexOf(d) !== -1; });
 				if (!items.length) return;
 				wrap.appendChild(el('section', { class: 'jrcc-agenda-day' }, [
 					el('h4', null, T.days[d - 1]),
@@ -267,7 +267,21 @@
 					]);
 				}))]));
 			}
-			var undated = list.filter(function (c) { return (!c.days || !c.days.length) && !J.isCampSession(c); });
+			var eventRows = list.filter(function (c) { return c.type === 'event'; }).sort(function (a, b) { return a.sd.localeCompare(b.sd) || (a.start || '').localeCompare(b.start || ''); });
+			if (eventRows.length) {
+				wrap.appendChild(el('section', { class: 'jrcc-agenda-day' }, [el('h4', null, T.events), el('ul', null, eventRows.map(function (c) {
+					return el('li', { class: 'jrcc-agenda-row' + (c.full ? ' is-full' : ''), style: { '--jrcc-event': colorOf(c) } }, [
+						el('span', { class: 'jrcc-agenda-time' }, J.whenText(c)),
+						el('span', { class: 'jrcc-agenda-main' }, [
+							el('button', { type: 'button', class: 'jrcc-linklike jrcc-strong', onclick: function () { J.openDetails(c); } }, c.name),
+							el('span', { class: 'jrcc-muted' }, [J.sessionLabel(c), c.location ? c.location.name : '', c.price].filter(Boolean).join(' · '))
+						]),
+						J.openingsBadge(c),
+						J.action(c, 'jrcc-btn-sm')
+					]);
+				}))]));
+			}
+			var undated = list.filter(function (c) { return (!c.days || !c.days.length) && !J.isDated(c); });
 			if (undated.length) {
 				wrap.appendChild(el('section', { class: 'jrcc-agenda-day' }, [el('h4', null, T.dates), el('ul', null, undated.map(function (c) {
 					return el('li', { class: 'jrcc-agenda-row', style: { '--jrcc-event': colorOf(c) } }, [

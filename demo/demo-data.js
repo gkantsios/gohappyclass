@@ -203,6 +203,61 @@
 		}
 	});
 
+	// Events, shaped like Jackrabbit's Events module: one-off dates, each with
+	// its own registration form. Dates are relative to today.
+	var eventId = 8400001;
+	function dayFrom(weekOffset, weekday) { // weekday: 1 = Monday … 7 = Sunday
+		var d = new Date(monday);
+		d.setDate(monday.getDate() + weekOffset * 7 + weekday - 1);
+		if (d < today) d.setDate(d.getDate() + 7);
+		return d;
+	}
+	[
+		{ name: "Parents' Night Out", week: 0, day: 5, start: '18:00', end: '21:30', loc: 'hh-cary', min: 48, max: 155, price: 35, room: 'Main Gym', open: 6, desc: 'Drop the kids off for pizza, games, open gym and a movie while you enjoy a night out. Our coaches run the whole evening.' },
+		{ name: 'Ninja Night', week: 1, day: 6, start: '18:00', end: '20:30', loc: 'hh-north', min: 72, max: 179, price: 30, room: 'Ninja Zone', open: 2, desc: 'Glow-stick obstacle courses, ninja challenges and team games. No ninja experience needed.' },
+		{ name: 'Family Swim Night', week: 1, day: 7, start: '16:00', end: '18:00', loc: 'hh-wake', min: 0, max: 0, price: 15, room: 'Warm-Water Pool', open: 12, desc: 'Bring the whole family for an evening of open swim, pool games and floaties. Lifeguards on deck; one adult per two children under 6.' },
+		{ name: 'Open Gym', week: 2, day: 6, start: '13:00', end: '15:00', loc: 'hh-durham', min: 36, max: 155, price: 12, room: 'Main Gym', open: 0, desc: 'Free play on the trampolines, foam pit and tumble track with coaches supervising. Great for trying us out before you sign up for a class.' },
+		{ name: "Parents' Night Out", week: 3, day: 5, start: '18:00', end: '21:30', loc: 'hh-durham', min: 48, max: 155, price: 35, room: 'Main Gym', open: 9, desc: 'Drop the kids off for pizza, games, open gym and a movie while you enjoy a night out. Our coaches run the whole evening.' },
+		{ name: 'Winter Dance Showcase', week: 4, day: 6, start: '14:00', end: '16:00', loc: 'hh-cary', min: 36, max: 191, price: 10, room: 'Studio A', open: 25, desc: 'Our dancers perform the routines they have worked on all session. Registration reserves a spot for your dancer; family tickets are sold at the door.' },
+		{ name: 'Holiday Bounce Party', week: 5, day: 6, start: '10:00', end: '12:00', loc: 'hh-north', min: 24, max: 107, price: 20, room: 'Main Gym', open: 3, desc: 'Festive music, bounce games, crafts and cocoa for little hoppers. Holiday pajamas encouraged.' },
+		{ name: 'Ninja Night', week: 6, day: 6, start: '18:00', end: '20:30', loc: 'hh-cary', min: 72, max: 179, price: 30, room: 'Ninja Zone', open: 10, desc: 'Glow-stick obstacle courses, ninja challenges and team games. No ninja experience needed.' }
+	].forEach(function (ev) {
+		var d = dayFrom(ev.week, ev.day);
+		var id = eventId++;
+		classes.push({
+			id: 'event-' + id,
+			org: ORG,
+			name: ev.name,
+			desc: '<p>' + ev.desc + '</p>',
+			cat1: '',
+			cat2: '',
+			cat3: '',
+			session: '',
+			gender: '',
+			days: [ev.day],
+			start: ev.start,
+			end: ev.end,
+			sd: ymd(d),
+			ed: ymd(d),
+			min: ev.min || null,
+			max: ev.max || null,
+			open: ev.open,
+			wait: false,
+			price: '$' + ev.price,
+			monthly: false,
+			fee: ev.price,
+			billing: 'event',
+			reg: 'https://app.jackrabbitclass.com/regevent.asp?xID=' + id + '&orgid=' + ORG,
+			ext: false,
+			reg_start: '',
+			instructors: [],
+			room: ev.room,
+			type: 'event',
+			loc: ev.loc,
+			source: 'events'
+		});
+	});
+
 	window.GHC_DEMO_PAYLOAD = {
 		generated: Math.floor(Date.now() / 1000),
 		classes: classes,

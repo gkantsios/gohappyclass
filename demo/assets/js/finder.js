@@ -40,7 +40,7 @@
 		// With both classes and camps, ask which first so results aren't a mix.
 		var types = {};
 		all.forEach(function (c) { types[c.type] = true; });
-		if (types.camp && types['class'] && steps.indexOf('type') === -1) steps.unshift('type');
+		if (Object.keys(types).length > 1 && steps.indexOf('type') === -1) steps.unshift('type');
 		var answers = {}; // step → { value, label }
 		var history = []; // steps actually shown, for Back
 		var panel = el('div', { class: 'jrcc-finder-panel', 'aria-live': 'polite' });
@@ -76,7 +76,7 @@
 			J.append(panel, [
 				el('div', { class: 'jrcc-progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': total, 'aria-valuenow': done + 1 }, el('span', { style: { width: Math.round(((done + 1) / (total + 1)) * 100) + '%' } })),
 				el('p', { class: 'jrcc-step-count' }, J.sprintf(T.step, done + 1, total)),
-				el('h3', { class: 'jrcc-question' }, (F.questions || {})[next.step] || ''),
+				el('h3', { class: 'jrcc-question' }, next.step === 'type' && next.options.some(function (o) { return o.value === 'event'; }) && (F.questions || {}).type === T.typeQuestionDefault ? T.typeQuestionAll : (F.questions || {})[next.step] || ''),
 				el('div', { class: 'jrcc-options' + (next.options.length > 8 ? ' is-many' : '') }, next.options.map(function (o) {
 					return optionButton(o.label, countLabel(o.count), function () {
 						answers[next.step] = { value: o.value, label: o.label };
@@ -239,7 +239,7 @@
 	function family(root, cfg, all) {
 		var P = J.plan;
 		// A recurring weekly schedule: week-long camps don't belong in it.
-		all = all.filter(function (c) { return c.type !== 'camp'; });
+		all = all.filter(function (c) { return c.type !== 'camp' && c.type !== 'event'; });
 		var fields = (F.family || []).filter(function (f) { return f && f.field; });
 		var onlyOpen = !!D.hideFull;
 		if (!P.children().length) P.addChild('');

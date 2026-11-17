@@ -70,6 +70,7 @@
 /* Badges */
 .jrcc-badge { display: inline-flex; align-items: center; padding: .15em .6em; border-radius: 999px; font-size: .72em; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; background: var(--jrcc-soft); color: var(--jrcc-primary); white-space: nowrap; }
 .jrcc-badge-camp { background: color-mix(in srgb, var(--jrcc-accent) 22%, var(--jrcc-surface)); color: color-mix(in srgb, var(--jrcc-accent) 55%, #000); }
+.jrcc-badge-event { background: #efe7fb; color: #5b3a99; }
 .jrcc-badge-cat { background: transparent; border: 1px solid var(--jrcc-line); color: var(--jrcc-muted); text-transform: none; letter-spacing: 0; font-weight: 600; }
 .jrcc-badge-low { background: #fff1e0; color: #a14a00; text-transform: none; letter-spacing: 0; }
 .jrcc-badge-full { background: #f3f4f6; color: #555; }

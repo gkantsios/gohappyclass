@@ -16,7 +16,7 @@ JavaScript: no WordPress, no backend, no build step.
 | File | What it is |
 |---|---|
 | `index.html` | The demo page (header, intro, widgets, call to action) |
-| `demo-data.js` | The fictional business: 4 locations, ~50 classes and camps |
+| `demo-data.js` | The fictional business: 4 locations, ~50 classes, camps and events |
 | `demo-config.js` | The settings a site owner would set in WordPress (colors, labels, finder questions, cart) |
 | `assets/` | Copied unchanged from the plugin (`assets/js`, `assets/css`, `assets/vendor/leaflet`) |
 

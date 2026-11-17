@@ -33,12 +33,14 @@ window.JRCC_CONFIG = {
    "swim": "#0ea5c6",
    "dance": "#d9468f",
    "ninja warrior": "#f08c00",
-   "camp": "#2f9e5f"
+   "camp": "#2f9e5f",
+   "events": "#7c4dcc"
   },
   "weekendMessage": "Saturday afternoons are for birthday parties. {Book a party}",
   "weekendLink": "#",
   "analytics": false,
-  "campsWithClasses": true
+  "campsWithClasses": true,
+  "eventsWithClasses": true
  },
  "cart": {
   "enabled": true,
@@ -243,7 +245,8 @@ window.JRCC_CONFIG = {
   "category": "Program",
   "add": "Add to plan",
   "plan": "My plan",
-  "regAll": "Register all"
+  "regAll": "Register all",
+  "event": "Event"
  },
  "i18n": {
   "loading": "Loading classes…",
@@ -394,7 +397,17 @@ window.JRCC_CONFIG = {
   "calendarTab": "Calendar",
   "listTab": "All classes",
   "wizardEmpty": "The class finder has no questions yet.",
-  "demoPortalText": "On your website, this opens the Jackrabbit Parent Portal, where families log in to finish registering."
+  "demoPortalText": "On your website, this opens the Jackrabbit Parent Portal, where families log in to finish registering.",
+  "eventsTab": "Events",
+  "registerEvent": "Register for this event",
+  "typeQuestionDefault": "Are you looking for classes or camps?",
+  "typeQuestionAll": "What are you looking for?",
+  "events": "Events",
+  "eventCount": "%s events",
+  "room": "Room",
+  "eventsOwnForm": "Events register on their own form",
+  "eventsOwnFormNote": "Each event opens its Jackrabbit registration form.",
+  "eventRegister": "Register for %1$s (%2$s)"
  }
 };
 // Demo data and place search instead of a WordPress backend.

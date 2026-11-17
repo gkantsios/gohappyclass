@@ -57,11 +57,11 @@
 		var rows = classes.map(function (c) {
 			var cells = [
 				el('td', { 'data-label': L.class }, el('button', { type: 'button', class: 'jrcc-linklike jrcc-strong', onclick: function () { J.openDetails(c); } }, c.name)),
-				el('td', { 'data-label': T.when }, J.isCampSession(c) ? [J.fmtDateRange(c), el('br'), J.fmtTimeRange(c)] : [J.fmtDays(c.days), el('br'), J.fmtTimeRange(c)])
+				el('td', { 'data-label': T.when }, J.isDated(c) ? [c.type === 'event' ? J.fmtDate(c.sd, { weekday: 'short', month: 'short', day: 'numeric' }) : J.fmtDateRange(c), el('br'), J.fmtTimeRange(c)] : [J.fmtDays(c.days), el('br'), J.fmtTimeRange(c)])
 			];
 			if (D.showAges) cells.push(el('td', { 'data-label': T.age }, J.fmtAges(c).replace(T.ages + ' ', '').replace(T.age + ' ', '')));
 			if (showLoc) cells.push(el('td', { 'data-label': T.location }, c.location ? c.location.name : ''));
-			if (D.showDates) cells.push(el('td', { 'data-label': T.dates }, J.isCampSession(c) ? (c.session || '') : J.fmtDateRange(c)));
+			if (D.showDates) cells.push(el('td', { 'data-label': T.dates }, J.isDated(c) ? J.sessionLabel(c) : J.fmtDateRange(c)));
 			if (D.showOpenings) cells.push(el('td', { 'data-label': T.openings }, c.full ? el('span', { class: 'jrcc-badge jrcc-badge-full' }, L.full) : (c.open === null ? '' : String(c.open))));
 			if (D.showPrice) cells.push(el('td', { 'data-label': T.tuition }, c.price || ''));
 			cells.push(el('td', { class: 'jrcc-td-action' }, J.action(c, 'jrcc-btn-sm')));
@@ -112,7 +112,7 @@
 			if (limit) list = list.slice(0, limit);
 			// Cards show one per camp, so count camps once; tables list every session.
 			var shownCount = cfg.layout === 'table' ? list.length : J.groupCamps(list).length;
-			count.textContent = cfg.type === 'camp' ? J.sprintf(T.campCount, shownCount) : countText(shownCount);
+			count.textContent = cfg.type === 'camp' ? J.sprintf(T.campCount, shownCount) : cfg.type === 'event' ? J.sprintf(T.eventCount, shownCount) : countText(shownCount);
 			if (cfg.layout === 'table') renderTable(results, list);
 			else renderCards(results, list);
 		}
