@@ -78,3 +78,7 @@ calendar, map, app), `assets/css/frontend.css` and `assets/vendor/leaflet` into
 `assets/` here. To change the sample business, edit `demo-data.js`; to change
 colors, labels or the custom questions, edit `demo-config.js` and the `.jrcc`
 color variables at the top of `index.html`.
+
+After changing any file, bump the `?v=` number on the `<script>` and
+`<link rel="stylesheet">` tags in `index.html` so browsers fetch the new
+version instead of a cached copy (GitHub Pages caches these for up to 4 hours).
